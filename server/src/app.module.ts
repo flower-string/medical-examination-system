@@ -1,31 +1,35 @@
 import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// 控制器
-import { MedicalItemController } from './controllers/MedicalItem.controller';
-import { UserController } from './controllers/user.controller';
-import { LogController } from './controllers/log.controller';
-
-// 服务依赖
-import { UserService } from './services/user.service';
-
-// MySQL实体
-import { User } from './entitys/user.entity';
+import { UserModule } from './user/user.module';
+import { RecordModule } from './record/record.module';
+import { DoctorModule } from './doctor/doctor.module';
+import { AdminModule } from './admin/admin.module';
+import { ItemModule } from './item/item.module';
+import { GroupModule } from './group/group.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
       username: 'root',
       password: '123456',
+      host: 'localhost',
       database: 'homework',
-      entities: [User],
+      port: 3306,
       synchronize: true,
+      autoLoadEntities: true,
+      // entities: [__dirname + '/**/*.entity{.ts,.js}'],
     }),
+    UserModule,
+    RecordModule,
+    DoctorModule,
+    AdminModule,
+    ItemModule,
+    GroupModule
   ],
-  controllers: [MedicalItemController, UserController, LogController],
-  providers: [UserService],
+  controllers: [AppController],
+  providers: [AppService],
 })
-
 export class AppModule {}
