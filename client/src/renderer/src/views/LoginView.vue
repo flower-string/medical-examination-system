@@ -18,9 +18,9 @@
           <input type="password" placeholder="密码" />
           <div style="margin-top: 20px; width: 70%">
             <el-radio-group v-model="loginForm.type" size="small">
-              <el-radio label="0" border>管理员</el-radio>
-              <el-radio label="1" border>医生</el-radio>
-              <el-radio label="2" border>普通用户</el-radio>
+              <el-radio :label='0' border>管理员</el-radio>
+              <el-radio :label='1' border>医生</el-radio>
+              <el-radio :label='2' border>普通用户</el-radio>
             </el-radio-group>
           </div>
           <button @click="login">登录</button>
@@ -52,7 +52,7 @@ const router = useRouter()
 const loginForm = ref({
   name: '',
   password: '',
-  type: '2',
+  type: 2,
 });
 function toLogin() {
   form_box.value.style.transform = 'translateX(0%)'
@@ -61,31 +61,27 @@ function toLogin() {
 }
 async function login() {
   // ajax
+  
   const PathRoute = {
     importPath: '../router/routes/user.js',
     path: '/user',
-    setPath(path) {
-      this.path = '/' + path
-      this.importPath = '../router/routes/' + path + '.js'
-    },
-    typeToPath(type) {
-      let path = 'admin';
+    setPath(type) {
+      let p = 'user'
       switch(type) {
-        case 0: path = 'admin'; break;
-        case 1: path = 'doctor'; break;
-        case 2: path = 'user'; break;
+        case 0: p = 'admin'; break;
+        case 1: p = 'doctor'; break;
+        case 2: p = 'user'; break;
       }
-      return path;
-    }
+      this.path = '/' + p
+      this.importPath = '../router/routes/' + p + '.js'
+    },
   }
-  const p = PathRoute.typeToPath(loginForm.value.type);
-  PathRoute.setPath(p);
+  PathRoute.setPath(loginForm.value.type);
   // 全局挂载路由权限信息
   globalThis.PathRoute = PathRoute;
   const { path, importPath } = PathRoute;
   const modules = import.meta.glob('../router/routes/*.js')
   const routes = await modules[importPath]()
-  console.log(routes);
   router.addRoute(routes.default[0]);
   router.push(path)
 }

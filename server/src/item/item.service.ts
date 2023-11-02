@@ -15,28 +15,42 @@ export class ItemService {
     item.desc = createItemDto.desc;
     item.doctorId = createItemDto.doctorId;
     this._itemRepository.save(item);
-    return 'This action adds a new item';
+    console.log(item);
+    return {
+      message: '体检项目创建成功',
+      data: item
+    };
   }
 
   findAll() {
     const items = this._itemRepository.find();
-    return items;
+    return {
+      message: '查询成功',
+      data: items
+    };
   }
 
   async findOne(id: number) {
     const items = await this._itemRepository.findOne({
       where: { id },
     });
-    return items[0];
+    return {
+      message: '查询成功',
+      data: items
+    };
   }
 
   update(id: number, updateItemDto: UpdateItemDto) {
     this._itemRepository.update(id, updateItemDto);
-    return `This action updates a #${id} item`;
+    return {
+      message: "体检项目更新成功"
+    };
   }
 
   remove(id: number) {
     this._itemRepository.delete(id);
-    return `This action removes a #${id} item`;
+    return {
+      message: "体检项目删除成功"
+    };
   }
 }

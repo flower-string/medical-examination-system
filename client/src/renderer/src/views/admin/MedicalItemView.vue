@@ -21,19 +21,11 @@
       </template>
     </el-table-column>
 
-    <el-table-column
-      label="项目类型"
-      width="180"
-      :filters="[
-        { text: '单项检查', value: '单项检查' },
-        { text: '体检套餐', value: '体检套餐' }
-      ]"
-      :filter-method="filterHandler"
-    >
+    <el-table-column label="负责医生" width="180">
       <template #default="scope">
         <div style="display: flex; align-items: center">
           <el-icon></el-icon>
-          <el-tag>{{ scope.row.type }}</el-tag>
+          <span>{{ scope.row.doctor }}</span>
         </div>
       </template>
     </el-table-column>
@@ -62,12 +54,6 @@
       <el-form-item label="价格" :label-width="formLabelWidth">
         <el-input v-model="EditForm.price" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="体检类型" :label-width="formLabelWidth">
-        <el-select v-model="form.type" placeholder="选择体检类型">
-          <el-option label="单项体检" value="单项体检" />
-          <el-option label="体检套餐" value="体检套餐" />
-        </el-select>
-      </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
@@ -82,14 +68,11 @@
       <el-form-item label="体检名称" :label-width="formLabelWidth">
         <el-input v-model="EditForm.name" autocomplete="off" />
       </el-form-item>
+      <el-form-item label="负责医生" :label-width="formLabelWidth">
+        <el-input v-model="EditForm.doctor" autocomplete="off" />
+      </el-form-item>
       <el-form-item label="价格" :label-width="formLabelWidth">
         <el-input v-model="EditForm.price" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="体检类型" :label-width="formLabelWidth">
-        <el-select v-model="EditForm.type" placeholder="选择体检类型">
-          <el-option label="单项体检" value="单项体检" />
-          <el-option label="体检套餐" value="体检套餐" />
-        </el-select>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -102,15 +85,19 @@
 </template>
 
 <script setup>
+import api from '../../http/api/crud';
+
 let editCurrent = ref(null);
+
 const handleEdit = (index, row) => {
+  console.log(row);
   console.log(index);
   dialogEditVisible.value = true
   EditForm.value = {
     id: row.id,
     name: row.name,
     price: row.price,
-    type: row.type
+    doctor: row.doctor
   };
   editCurrent.value = index;
 }
@@ -142,7 +129,7 @@ const addItem = () => {
     id: '5',
     name: '一般检查',
     price: 30,
-    type: '单项检查'
+    doctor: '丁香'
   })
   ElMessage({
     showClose: true,
@@ -156,25 +143,25 @@ const tableData = ref([
     id: '1',
     name: '一般检查',
     price: 30,
-    type: '单项检查'
+    doctor: '丁香'
   },
   {
     id: '2',
     name: '内科',
     price: 30,
-    type: '单项检查'
+    doctor: '丁香'
   },
   {
     id: '3',
     name: '内科',
     price: 30,
-    type: '单项检查'
+    doctor: '丁香'
   },
   {
     id: '4',
     name: '耳鼻喉',
     price: 30,
-    type: '单项检查'
+    doctor: '丁香'
   }
 ])
 function filterHandler(value, row, column) {

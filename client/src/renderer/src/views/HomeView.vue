@@ -8,7 +8,9 @@
         @select="handleSelect"
         :router="true"
       >
-          <el-menu-item v-for="item in menu" :index="item.path">{{ item.title }}</el-menu-item>
+          <el-menu-item v-for="item in menu" :index="item.path">
+            {{ item.title }}
+          </el-menu-item>
       </el-menu>
   </el-affix>
   <router-view />

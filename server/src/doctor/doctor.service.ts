@@ -14,30 +14,44 @@ export class DoctorService {
     doctor.name = createDoctorDto.name;
     doctor.password = createDoctorDto.password;
     this._doctorRepository.save(doctor);
-    return 'This action adds a new doctor';
+    return {
+      message: 'Doctor created successfully',
+      data: doctor
+    };
   }
 
-  findAll() {
-    const doctors = this._doctorRepository.find();
-    return doctors;
-  }
+  async findAll() {
+    const doctors = await this._doctorRepository.find();
+    return {
+      message: 'Doctors retrieved successfully',
+      data: doctors
+    };
+  } 
 
-  findOne(id: number) {
-    const result = this._doctorRepository.find({
+  async findOne(id: number) {
+    const result = await this._doctorRepository.find({
       where: {
         id
       }
     })
-    return `This action returns a #${id} doctor`;
+    return {
+      message: 'Doctor retrieved successfully',
+      data: result
+    };
   }
 
-  update(id: number, updateDoctorDto: UpdateDoctorDto) {
-    this._doctorRepository.update(id, updateDoctorDto);
-    return `This action updates a #${id} doctor`;
+  async update(id: number, updateDoctorDto: UpdateDoctorDto) {
+    await this._doctorRepository.update(id, updateDoctorDto);
+    return {
+      message: 'Doctor updated successfully',
+      data: await this.findOne(id)
+    };
   }
 
   remove(id: number) {
     this._doctorRepository.delete(id);
-    return `This action removes a #${id} doctor`;
+    return {
+      message: 'Doctor deleted successfully',
+    };
   }
 }
