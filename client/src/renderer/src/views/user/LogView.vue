@@ -41,8 +41,8 @@
           <div class="card-header">
             <span>体检项目清单</span>
             <span>
-              <el-button>体检报告</el-button>
-              <el-button>收费单据</el-button>
+              <el-button @click="showReport(tableData[current])">体检报告</el-button>
+              <el-button @click="showInvoices(tableData[current])">收费单据</el-button>
             </span>
           </div>
         </template>
@@ -97,6 +97,30 @@ async function cancel(index, row) {
   } catch {
     ElMessage.error('服务器错误')
   }
+}
+
+const showReport = (value) => {
+  if(value.status === 0) {
+    ElMessage.info("体检还未开始，无法查看报告")
+    return;
+  }
+  if(value.status === 2) {
+    ElMessage.info("体检已取消，无法查看报告")
+    return;
+  }
+  console.log(value);
+}
+
+const showInvoices = (value) => {
+  if(value.status === 0) {
+    ElMessage.info("体检还未开始，无法查看收费单")
+    return;
+  }
+  if(value.status === 2) {
+    ElMessage.info("体检已取消，无法查看收费单")
+    return;
+  }
+  console.log(value);
 }
 </script>
 

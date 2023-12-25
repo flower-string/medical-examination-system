@@ -4,8 +4,9 @@
       <header>
         <el-avatar
           src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+          @click="infoVisible = true"
         />
-        <span>{{ info.name }}</span>
+        <span>{{ userStore.name }}</span>
         <button @click="quit">退出登录</button>
       </header>
       <el-menu
@@ -26,10 +27,41 @@
       <router-view />
     </main>
   </div>
+
+  <el-dialog title="个人信息" v-model="infoVisible">
+    <el-form>
+      <el-form-item label="用户名">
+        <el-input v-model="userStore.name" disabled/>
+      </el-form-item>
+      <el-form-item label="ID">
+        <el-input v-model="userStore.id" disabled/>
+      </el-form-item>
+      <el-form-item label="余额" v-if="userType == 2">
+        <el-input-number v-model="userStore.balance" disabled />
+        <el-button @click="renewalVisible = true">充值</el-button>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
+
+  <el-dialog title="充值" v-model="renewalVisible">
+    <el-form>
+      <el-form-item label="充值金额">
+        <el-input-number v-model="renewalMoney" />
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="renewalVisible = false">取 消</el-button>
+      <el-button type="primary" @click="renewal">确 定</el-button>
+    </span>
+  </el-dialog>
 </template>
 
 <script setup>
 import { userApi, doctorApi, adminApi } from '@renderer/http/api/crud'
+import { useUserStore } from '@renderer/store/user';
+import { userEenewal } from '@renderer/http/api/sp.js'
+
+const userStore = useUserStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -37,7 +69,12 @@ const menu = ref(null);
 const isCollapse = ref(false);
 const h1 = ref('');
 const info = ref({});
+const infoVisible = ref(false)
+const renewalVisible = ref(false);
+const renewalMoney = ref(0);
+const userType = localStorage.getItem('userType');
 menu.value = router.options.routes[+(localStorage.getItem('userType')) + 2].children.filter(item => Boolean(item.title))
+
 
 const getApi = () => {
   let api = null;
@@ -73,11 +110,33 @@ function quit() {
   }, 1000);
 }
 
+async function renewal() {
+  try {
+    const id = userStore.id;
+    const value = renewalMoney.value
+    await ElMessageBox.confirm(`确认为用户${id}充值${value}元吗？`, 'Warning', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await userEenewal(id, value);
+    ElMessage.success("充值成功！")
+    userStore.setBalance(userStore.balance + value)
+  } catch (error) {
+    ElMessageBox.alert("充值失败！")
+  } finally {
+    renewalVisible.value = false;
+  }
+}
+
 onMounted(async () => {
   console.log(localStorage.getItem('userId'));
   const api = getApi();
   info.value = await api.findOne(localStorage.getItem('userId'));
-  console.log(info.value);
+  userStore.setId(info.value.id);
+  userStore.setName(info.value.name);
+  userStore.setPassword(info.value.password);
+  userStore.setBalance(info.value.balance || 0);
 })
 </script>
 

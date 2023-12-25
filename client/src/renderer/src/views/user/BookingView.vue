@@ -62,7 +62,9 @@
 <script setup>
 import { logApi, itemApi, groupApi, userApi } from '../../http/api/crud'
 import ItemCard from './components/ItemCard.vue'
+import { useUserStore } from '@renderer/store/user';
 
+const userStore = useUserStore();
 const activeName = ref(1)
 const items = ref([])
 const groups = ref([])
@@ -86,6 +88,10 @@ async function yuyueGroup(status, data) {
       cancelButtonText: '取消',
       type: 'warning'
     })
+    if(userStore.balance < data.price) {
+      ElMessage.error('余额不足');
+      return;
+    }
     const items = groups.value.find((el) => el.id === data.id).items.map((el) => el.id);
     await logApi.create({
       userId: parseInt(localStorage.getItem('userId')),

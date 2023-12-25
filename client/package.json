@@ -1,5 +1,5 @@
 {
-  "name": "database_homework",
+  "name": "健康中心体检管理系统",
   "version": "1.0.0",
   "description": "An Electron application with Vue",
   "main": "./out/main/index.js",

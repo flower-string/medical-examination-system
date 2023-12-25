@@ -17,7 +17,6 @@ declare module 'vue' {
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
-    ElItem: typeof import('element-plus/es')['ElItem']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElOption: typeof import('element-plus/es')['ElOption']
@@ -28,13 +27,10 @@ declare module 'vue' {
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTag: typeof import('element-plus/es')['ElTag']
-    ElTextarea: typeof import('element-plus/es')['ElTextarea']
-    MedLogDetail: typeof import('./src/components/MedLogDetail.vue')['default']
     MedRecordDetail: typeof import('./src/components/MedRecordDetail.vue')['default']
     MedRecordStatus: typeof import('./src/components/MedRecordStatus.vue')['default']
     MedUserInfo: typeof import('./src/components/MedUserInfo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Versions: typeof import('./src/components/Versions.vue')['default']
   }
 }
