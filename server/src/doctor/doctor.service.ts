@@ -9,11 +9,13 @@ import { Repository } from 'typeorm';
 export class DoctorService {
   constructor(@InjectRepository(Doctor) private readonly _doctorRepository: Repository<Doctor>) {}
 
-  create(createDoctorDto: CreateDoctorDto) {
+  async create(createDoctorDto: CreateDoctorDto) {
     const doctor = new Doctor();
     doctor.name = createDoctorDto.name;
     doctor.password = createDoctorDto.password;
-    this._doctorRepository.save(doctor);
+    const d = await this._doctorRepository.save(doctor);
+    console.log(`医生注册成功，id:${d.id}, name:${d.name}`);
+    
     return {
       message: 'Doctor created successfully',
       data: doctor
@@ -21,7 +23,15 @@ export class DoctorService {
   }
 
   async findAll() {
-    const doctors = await this._doctorRepository.find();
+    const doctors = await this._doctorRepository.find({
+      where: {
+        isdeleted: false
+      }
+    });
+
+    if(doctors.length === 0) {
+      console.log("无医生");
+    }
     return {
       message: 'Doctors retrieved successfully',
       data: doctors
@@ -29,11 +39,16 @@ export class DoctorService {
   } 
 
   async findOne(id: number) {
-    const result = await this._doctorRepository.find({
+    const result = await this._doctorRepository.findOne({
       where: {
-        id
+        id,
+        isdeleted: false
       }
     })
+    if(!result) {
+      throw new Error("未发现医生");
+    }
+    
     return {
       message: 'Doctor retrieved successfully',
       data: result
@@ -49,8 +64,9 @@ export class DoctorService {
   }
 
   remove(id: number) {
-    this._doctorRepository.delete(id);
+    this._doctorRepository.update(id, {isdeleted: true});
     return {
+      data: id,
       message: 'Doctor deleted successfully',
     };
   }

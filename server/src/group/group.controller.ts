@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('group')
+@ApiTags("体检套餐接口")
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
@@ -13,8 +15,11 @@ export class GroupController {
   }
 
   @Get()
-  findAll() {
-    return this.groupService.findAll();
+  async findAll() {
+    return {
+      data: await this.groupService.findAll(),
+      message: "查询全部体检套餐成功"
+    }
   }
 
   @Get(':id')
@@ -23,7 +28,7 @@ export class GroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
+  update(@Param('id') id: number, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupService.update(+id, updateGroupDto);
   }
 

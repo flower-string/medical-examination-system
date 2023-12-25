@@ -7,6 +7,7 @@ class Axios {
 
   async findOne(id) {
     const item = await server.get(this.url + '/' + id);
+    return item;
   }
 
   async findAll() {
@@ -24,6 +25,7 @@ class Axios {
   }
 
   async update(data) {
+    console.log(data)
     const item = await server.patch(this.url + '/' + data.id, data);
   }
 
@@ -32,10 +34,10 @@ class Axios {
   }
 }
 
-export default {
-  userApi: new Axios('/user'),
-  recordApi: new Axios('/record'),
-  itemApi: new Axios('/item'),
-  groupApi: new Axios('/group'),
-  doctorApi: new Axios('/doctor'),
-}
+export const userApi = new Axios('/user');
+export const recordApi = new Axios('/record');
+export const itemApi = new Axios('/item');
+export const groupApi = new Axios('/group');
+export const doctorApi = new Axios('/doctor');
+export const adminApi = new Axios('/admin');
+export const logApi = new Axios('/log')

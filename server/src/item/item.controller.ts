@@ -1,15 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ItemService } from './item.service';
-import { CreateItemDto } from './dto/create-item.dto';
+import { ApiTags } from '@nestjs/swagger';
 import { UpdateItemDto } from './dto/update-item.dto';
 
 @Controller('item')
+@ApiTags("体检项目接口")
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
   @Post()
-  create(@Body() createItemDto: CreateItemDto) {
-    return this.itemService.create(createItemDto);
+  create(@Body() CreateItemDto) {
+    return this.itemService.create(CreateItemDto);
   }
 
   @Get()

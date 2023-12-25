@@ -1,32 +1,30 @@
+import { Doctor } from "src/doctor/entities/doctor.entity";
 import { Item } from "src/item/entities/item.entity";
+import { Log } from "src/log/entities/log.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn, ManyToOne } from "typeorm";
 
 enum RecordStatusEnum {
-  // 未开始,未缴费
-  NOT_START = 0,
   // 进行中
-  DOING = 1,
+  DOING = 0,
   // 已完成
-  FINISHED = 2,
+  FINISHED = 1,
   // 已取消
-  CANCELED = 3,
+  CANCEL = 2
 }
 
 @Entity()
 export class Record {
   @PrimaryGeneratedColumn()
   id: number;
+ 
+  // @ManyToOne(() => User, (user) => user.records)
+  // @JoinColumn()
+  // user: User;
 
-  @Column()
-  @OneToOne(() => User, userId => userId.id)
+  @ManyToOne(() => Item, (item) => item.records)
   @JoinColumn()
-  userId: number;
-
-  @Column()
-  @OneToOne(() => Item, itemId => itemId.id)
-  @JoinColumn()
-  itemId: number;
+  item: Item;
 
   @Column({type: 'varchar', default: ''})
   result: string;
@@ -34,8 +32,18 @@ export class Record {
   @Column({
     type: 'enum',
     enum: RecordStatusEnum,
+    default: 0
   })
   status: number;
+
+  @ManyToOne(() => Doctor, (doctor) => doctor.records)
+  @JoinColumn()
+  doctor: Doctor
+
+  // 配置级联删除
+  @ManyToOne(() => Log, (log) => log.id, { onDelete: "CASCADE" })
+  @JoinColumn()
+  log: Log
 
   @Column({type: 'varchar', default: ''})
   advice: string;
@@ -46,3 +54,4 @@ export class Record {
   @UpdateDateColumn({type: 'timestamp'})
   updateTime: Date;
 }
+

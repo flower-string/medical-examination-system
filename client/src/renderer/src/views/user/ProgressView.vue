@@ -1,5 +1,5 @@
 <template>
-  体检进度
+  体检指引
 </template>
 
 <script setup>

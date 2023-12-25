@@ -10,34 +10,56 @@ export class UserService {
   constructor(@InjectRepository(User) private readonly _userRepository: Repository<User>) {}
 
   // insert into user ...entity values(...createDto);
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const user = new User();
     user.name = createUserDto.name;
     user.password = createUserDto.password;
-    this._userRepository.save(user);
+    const u = await this._userRepository.save(user);
+    console.log(`用户注册成功，id: ${u.id}, name: ${u.name}`);
+    
     return {
       message: "用户创建成功",
-      data: user
+      data: u
     };
   }
 
   // select * from user where id = :id
   async findAll() {
-    const users = await this._userRepository.find();
+    const users = await this._userRepository.find({
+      where: {
+        isdeleted: false
+      }
+    });
+
+    if(users.length === 0) {
+      console.log("没有用户");
+    }
     return {
       message: "查询成功",
       data: users
     };
   }
 
+  async findLogs(id: number) {
+    const user = await this._userRepository.findOne({
+      relations: ['logs'],
+      where: {id},
+    })
+
+    return user;
+  }
+
   // select * from user where id = :id
   async findOne(id: number) {
     const user = await this._userRepository.findOne({
       where: {
-        id
+        id,
+        isdeleted: false
       }
     })
-    // console.log(users);
+    if(!user) {
+      throw new Error("用户不存在");
+    }
     return {
       message: "查询成功",
       data: user
@@ -52,10 +74,25 @@ export class UserService {
       data: await this.findOne(id)
     };
   }
+ 
+  async renewal(id: number, value: number) {
+    const user = await this._userRepository.findOne({
+      where: {
+        id,
+        isdeleted: false
+      }
+    })
+    if (!user) {
+      console.log("为不存在的用户充值");
+      throw new Error("用户不存在");
+    }
+    user.balance += value;
+    this._userRepository.save(user);
+  }
 
   // delete from user where id = :id
   remove(id: number) {
-    this._userRepository.delete(id);
+    this._userRepository.update(id, {isdeleted: true});
     return {
       message: "用户删除成功",
     };

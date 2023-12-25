@@ -1,273 +1,222 @@
 <template>
-  <div class="fbox">
-    <div class="container">
-      <div class="form-box" ref="form_box">
-        <!-- 注册 -->
-        <div class="register-box hidden" ref="register_box">
-          <h1>register</h1>
-          <input type="text" placeholder="用户名" />
-          <input type="text" placeholder="身份证号" />
-          <input type="password" placeholder="密码" />
-          <input type="password" placeholder="确认密码" />
-          <button @click="register">注册</button>
+  <div class="container">
+    <div class="shell loginbox" ref="loginBox">
+      <h2 class="title">Login</h2>
+      <input type="text" class="username" placeholder="Username" v-model="loginForm.id"/>
+      <input type="password" class="password" placeholder="Password" v-model="loginForm.password"/>
+      <select name="" id="" v-model="loginForm.type">
+        <option value="0">管理员</option>
+        <option value="1">医生</option>
+        <option value="2">普通用户</option>
+      </select>
+      <button @click="login" class="btn">登录</button>
+      <div class="footer">
+        <div class="Remember">
+          <input type="checkbox" id="rememberMe" />
+          <label for="rememberMe">记住我</label>
         </div>
-        <!-- 登录 -->
-        <div class="login-box" ref="login_box">
-          <h1>login</h1>
-          <input type="text" placeholder="用户名" />
-          <input type="password" placeholder="密码" />
-          <div style="margin-top: 20px; width: 70%">
-            <el-radio-group v-model="loginForm.type" size="small">
-              <el-radio :label='0' border>管理员</el-radio>
-              <el-radio :label='1' border>医生</el-radio>
-              <el-radio :label='2' border>普通用户</el-radio>
-            </el-radio-group>
-          </div>
-          <button @click="login">登录</button>
-        </div>
+        <button class="Swi" @click="showRegBox">去注册</button>
       </div>
-      <div class="con-box left">
-        <h2>欢迎</h2>
-        <!-- <img src="../images/cat/1.png" alt="" /> -->
-        <p>已有账号</p>
-        <button id="login" @click="toLogin">去登录</button>
-      </div>
-      <div class="con-box right">
-        <h2>欢迎</h2>
-        <!-- <img src="../images/cat/2.png" alt="" /> -->
-        <p>没有账号？</p>
-        <button id="register" @click="toRegister">去注册</button>
+    </div>
+
+    <div class="shell regbox" ref="regBox">
+      <h2 class="title">Register</h2>
+      <input type="text" class="username" placeholder="Username" v-model="regForm.name"/>
+      <input type="password" class="password" placeholder="Password" v-model="regForm.password"/>
+      <button class="btn" @click="register">注册并登录</button>
+      <div class="footer">
+        <div></div>
+        <button class="Swi" @click="showLoginBox">去登录</button>
       </div>
     </div>
   </div>
-</template>
+</template> 
 
 <script setup>
-const form_box = ref(null)
-const register_box = ref(null)
-const login_box = ref(null)
-const HomeView = () => import('./HomeView.vue')
-const router = useRouter()
+  import loginApi from '../http/api/login';
+  import { userApi } from '@renderer/http/api/crud';
+  const router = useRouter();
+  const loginBox = ref(null)
+  const regBox = ref(null)
+ 
+  const loginForm = ref({
+    id: '',
+    password: '',
+    type: '0'
+  })
 
-const loginForm = ref({
-  name: '',
-  password: '',
-  type: 2,
-});
-function toLogin() {
-  form_box.value.style.transform = 'translateX(0%)'
-  login_box.value.classList.remove('hidden')
-  register_box.value.classList.add('hidden')
-}
-async function login() {
-  // ajax
-  
-  const PathRoute = {
-    importPath: '../router/routes/user.js',
-    path: '/user',
-    setPath(type) {
-      let p = 'user'
-      switch(type) {
-        case 0: p = 'admin'; break;
-        case 1: p = 'doctor'; break;
-        case 2: p = 'user'; break;
-      }
-      this.path = '/' + p
-      this.importPath = '../router/routes/' + p + '.js'
-    },
+  const showLoginBox = () => {
+    loginBox.value.style.display = 'block'
+    regBox.value.style.display = 'none'
   }
-  PathRoute.setPath(loginForm.value.type);
-  // 全局挂载路由权限信息
-  globalThis.PathRoute = PathRoute;
-  const { path, importPath } = PathRoute;
-  const modules = import.meta.glob('../router/routes/*.js')
-  const routes = await modules[importPath]()
-  router.addRoute(routes.default[0]);
-  router.push(path)
-}
 
+  const showRegBox = () => {
+    regBox.value.style.display = 'block'
+    loginBox.value.style.display = 'none'
+  }
 
+  const login = () => { 
+    if(loginForm.value.id.trim() == '' || loginForm.value.password.trim() == '') {
+      alert('用户名或密码不能为空');
+      return;
+    }
+    // 登录逻辑
+    _login({type: parseInt(loginForm.value.type), id: loginForm.value.id, password: loginForm.value.password});
+  }
 
+  const regForm = ref({
+    name: '',
+    password: '',
+  })
 
-const registerForm = ref({
-  name: '',
+  const _login = async (data) => {
+    let { type, id } = data;
 
-})
-function toRegister() {
-  form_box.value.style.transform = 'translateX(80%)'
-  register_box.value.classList.remove('hidden')
-  login_box.value.classList.add('hidden')
-}
-async function register() {
-  // ajax
-  console.log("注册成功");
-  toLogin();
-}
+    id = parseInt(id);
+    console.log(type, id);
+    // 鉴权认证
+
+    // 认证通过，跳转页面
+    if(type == 0) router.push('/admin');
+    else if(type == 1) router.push('/doctor');
+    else router.push('/user');
+
+    // 保存登录信息
+    localStorage.setItem('userType', type);
+    localStorage.setItem('userId', id);
+  }
+
+  const register = async () => {
+    if(regForm.value.name.trim() == '' || regForm.value.password.trim() == '') {
+      alert('用户名或密码不能为空');
+      return;
+    }
+    if(regForm.value.password.trim().length < 6) {
+      alert('密码长度不能小于6');
+      return;
+    }
+    // 注册逻辑
+    try {
+      await ElMessageBox.confirm('注册账号后需使用ID和密码进行登录，请牢记!', '提示', {
+        confirmButtonText: '我已了解',
+        cancelButtonText: '取消注册',
+        type: 'warning'
+      })
+      const user = await userApi.create(regForm.value);
+      ElMessage.success('注册成功');
+      console.log("用户信息", user);
+      _login({ type: 2, id: user.id, password: user.password })
+    } catch {
+      ElMessage.error('注册失败');
+    }
+  }
 </script>
 
 <style scoped>
-.fbox {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-}
-
 .container {
-  width: 600px;
-  height: 420px;
-  background-color: #fff;
-  border-radius: 5px;
-  /* 阴影 */
-  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
-  /* 相对定位 */
-  position: relative;
-}
-.form-box {
-  /* 绝对定位 */
-  position: absolute;
-  top: -10%;
-  left: 5%;
-  background-color: #86a5b1;
-  width: 320px;
-  height: 500px;
-  border-radius: 5px;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2;
-  /* 动画过渡 加速后减速 */
-  transition: 0.5s ease-in-out;
+  height: 100vh;
+  background-image: url('../assets/02.webp');
+  background-size: cover;
 }
-.register-box,
-.login-box {
-  /* 弹性布局 垂直排列 */
+
+.shell {
+  width: 350px;
+  padding: 40px;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  flex-direction: column;
+  background-color: #ffffff49;
+  border-radius: 50px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5) inset;
+  transform: translateY(-50px);
+}
+
+.title {
+  font-size: 80px;
+  margin-bottom: 30px;
+  color: #fff;
+  text-shadow: 0 0 10px #ff9dff80;
+}
+
+input[type='text'],
+input[type='password'],
+select,
+option {
   width: 100%;
-}
-.hidden {
-  display: none;
-  transition: 0.5s;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 25px;
-  /* 大写 */
-  text-transform: uppercase;
-  color: #fff;
-  /* 字间距 */
-  letter-spacing: 5px;
-}
-input {
-  background-color: transparent;
-  width: 70%;
-  color: #fff;
-  border: none;
-  /* 下边框样式 */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 10px 0;
-  text-indent: 10px;
-  margin: 8px 0;
-  font-size: 14px;
-  letter-spacing: 2px;
-}
-input::placeholder {
-  color: #fff;
-}
-input:focus {
-  color: white;
+  height: 50px;
+  margin: 10px 0;
+  box-sizing: border-box;
+  color: rgb(0, 0, 0);
+  border: 5px solid transparent;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 100px;
+  padding: 5px 20px 0 20px;
+  transition: 0.3s;
+  font-size: 18px;
   outline: none;
-  border-bottom: 1px solid #86a5b180;
-  transition: 0.5s;
 }
-input:focus::placeholder {
-  opacity: 0;
+
+input[type='text']:hover,
+input[type='password']:hover,
+select:hover {
+  background: rgba(255, 255, 255, 0);
+  border: 5px solid #ffffff;
 }
-.form-box button {
-  width: 70%;
-  margin-top: 35px;
-  background-color: #f6f6f6;
-  outline: none;
-  border-radius: 8px;
-  padding: 13px;
-  color: #86a5b1;
-  letter-spacing: 2px;
+
+button.btn {
+  width: 100%;
+  height: 50px;
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 100px;
   border: none;
+  background-color: #007bff;
+  color: #fff;
   cursor: pointer;
-}
-.form-box button:hover {
-  background-color: #86a5b1;
-  color: #f6f6f6;
-  transition: background-color 0.5s ease;
-}
-.con-box {
-  width: 50%;
-  /* 弹性布局 垂直排列 居中 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  /* 绝对定位 居中 */
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.con-box.left {
-  left: -2%;
-}
-.con-box.right {
-  right: -2%;
-}
-.con-box h2 {
-  color: #8e9aaf;
-  font-size: 25px;
-  font-weight: bold;
+  font-size: 20px;
   letter-spacing: 3px;
-  text-align: center;
-  margin-bottom: 4px;
-}
-.con-box p {
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: #8e9aaf;
-  text-align: center;
-}
-.con-box span {
-  color: #d3b7d8;
-}
-.con-box img {
-  width: 150px;
-  height: 150px;
-  opacity: 0.9;
-  margin: 40px 0;
-}
-.con-box button {
-  margin-top: 3%;
-  background-color: #fff;
-  color: #86a5b1;
-  border: 1px solid #86a5b1;
-  padding: 6px 10px;
-  border-radius: 5px;
-  letter-spacing: 1px;
-  outline: none;
-  cursor: pointer;
-}
-.con-box button:hover {
-  background-color: #86a5b1;
-  color: #fff;
 }
 
-.el-radio-group {
+input::placeholder {
+  color: #92a7e8;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  justify-content: space-evenly;
+  margin-top: 20px;
 }
 
-label {
-  margin: 2px;
-  padding: 2px !important;
+.Remember {
+  opacity: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #7597ff;
+}
+
+input[type='checkbox'] {
+  display: block;
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+  background-color: #007bff;
+}
+
+.Swi {
+  border: none;
+  background-color: #ffffff00;
+  color: #7597ff;
+  font-size: 18px;
+}
+
+.regbox {
+  display: none;
 }
 </style>

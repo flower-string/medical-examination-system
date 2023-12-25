@@ -38,9 +38,12 @@ const serviceAxios = axios.create({
 serviceAxios.interceptors.response.use(
   (res) => {
     // 处理自己的业务逻辑，比如判断 token 是否过期等等
-    // 代码块
+
+    
     // 判断请求是否成功
-    let data = res.data.data;
+    res = res.data;
+    const { data, message } = res;
+    console.log("响应数据", data, '\n', '提示信息', message);
     return data;
   },
   (error) => {
@@ -86,11 +89,14 @@ serviceAxios.interceptors.response.use(
         case 505:
           message = "HTTP 版本不受支持！";
           break;
+        case "INSUFFICIENT_BALANCE":
+          message = "用户余额不足";
         default:
           message = "异常问题，请联系管理员！";
           break;
       }
     }
+    console.log("异常拦截", error.response);
     ElMessage(message);
     return Promise.reject(message);
   }
