@@ -50,6 +50,8 @@
       </el-card>
     </el-drawer>
   </div>
+
+  <canvas ref="canvas"></canvas>
 </template>
 
 <script setup>
@@ -57,10 +59,10 @@ import { user_getUserLogs, cancelBook } from '../../http/api/sp'
 
 import MedRecordDetail from '@renderer/components/MedRecordDetail.vue'
 import MedRecordStatus from '@renderer/components/MedRecordStatus.vue'
+import { preview } from 'vue3-image-preview';
 
 onMounted(async () => {
   tableData.value = await user_getUserLogs(localStorage.getItem('userId'))
-  console.log(list)
 })
 
 const tableData = ref([])
@@ -99,6 +101,7 @@ async function cancel(index, row) {
   }
 }
 
+const imageUrl = ref('');
 const showReport = (value) => {
   if(value.status === 0) {
     ElMessage.info("体检还未开始，无法查看报告")
@@ -108,19 +111,28 @@ const showReport = (value) => {
     ElMessage.info("体检已取消，无法查看报告")
     return;
   }
-  console.log(value);
 }
 
+const canvas = ref(null);
 const showInvoices = (value) => {
-  if(value.status === 0) {
-    ElMessage.info("体检还未开始，无法查看收费单")
-    return;
-  }
-  if(value.status === 2) {
-    ElMessage.info("体检已取消，无法查看收费单")
-    return;
-  }
-  console.log(value);
+  // if(value.status === 0) {
+  //   ElMessage.info("体检还未开始，无法查看收费单")
+  //   return;
+  // }
+  // if(value.status === 2) {
+  //   ElMessage.info("体检已取消，无法查看收费单")
+  //   return;
+  // }
+  const ctx = canvas.value.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, 1150, 700);
+  ctx.beginPath();
+  ctx.font = 72;
+  ctx.fillText("收费单据", 506, 160)
+  imageUrl.value = canvas.value.toDataURL()
+  preview({
+    images: [imageUrl]
+  })
 }
 </script>
 
@@ -141,5 +153,10 @@ const showInvoices = (value) => {
 
 .box-card {
   margin-top: 20px;
+}
+
+canvas {
+  background-color: white;
+  display: none;
 }
 </style>

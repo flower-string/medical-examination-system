@@ -33,4 +33,10 @@ export class AdminController {
   remove(@Param('id') id: string) {
     return this.adminService.remove(+id);
   }
+
+  @Post('login')
+  async login(@Body() body: {name: string, password: string}) {
+    const message = await this.adminService.login(body);
+    return message;
+  }
 }

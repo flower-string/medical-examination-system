@@ -1,5 +1,5 @@
 {
-  "name": "健康中心体检管理系统",
+  "name": "exam-system",
   "version": "1.0.0",
   "description": "An Electron application with Vue",
   "main": "./out/main/index.js",
@@ -25,7 +25,10 @@
     "electron-updater": "^6.1.1",
     "element-plus": "^2.4.1",
     "pinia": "^2.1.7",
-    "vue-router": "4"
+    "v-viewer": "^1.7.1",
+    "viewerjs": "^1.11.6",
+    "vue-router": "4",
+    "vue3-image-preview": "^0.2.7"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",

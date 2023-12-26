@@ -109,8 +109,6 @@ const search = async () => {
   recordList.value = records
 }
 const submitAdvice = async () => {
-    console.log("即将提交");
-    console.log(recordApi);
     recordApi.update(formData.value)
     .then((res) => {
       ElMessage.success("提交成功");

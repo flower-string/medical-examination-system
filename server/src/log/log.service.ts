@@ -36,21 +36,34 @@ export class LogService {
       .getCount();
     console.log("今日已预约人数为：" ,count);
     if (count >= 100) {
-      throw new Error("今日预约人数已达到上限");
+      return {
+        message: "今日预约人数已达到上限",
+        code: 1001,
+        data: 400
+      }
     }
+
     const { data: user } = await this.userServer.findOne(createLogDto.userId);
     if(!user) {
       throw new Error("用户不存在"); 
     } 
+
     if(user.balance < createLogDto.pay) {
-      const error = new Error("用户余额不足");
-      throw error;
+      return {
+        message: "余额不足",
+        code: 1002,
+        data: 400
+      }
     } 
     const { data: logs } = await this.findLogsByUserId(user.id);
     // 如果有未完成的预约
     for(const log of logs) {
       if(log.status === 0) {
-        throw new Error("用户有未完成的预约");
+        return {
+          message: "有未完成的预约",
+          code: 1003,
+          data: 400
+        }
       }
     }
     const log = new Log();
@@ -69,6 +82,7 @@ export class LogService {
 
     return { 
       data: da,
+      code: 1000,
       message: "预约成功"
     }
   }

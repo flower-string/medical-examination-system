@@ -32,7 +32,15 @@ const serviceAxios = axios.create({
 //     Promise.reject(error);
 //   }
 // );
-
+serviceAxios.interceptors.request.use(
+  (config) => {
+    // 开启session认证
+    if (serverConfig.useSessionAuthorization) {
+      config.withCredentials = true; // 开启跨域请求携带 cookie
+    }
+    return config;
+  }
+)
 
 // 创建响应拦截
 serviceAxios.interceptors.response.use(
@@ -97,7 +105,7 @@ serviceAxios.interceptors.response.use(
       }
     }
     console.log("异常拦截", error.response);
-    ElMessage(message);
+    ElMessage.error(message);
     return Promise.reject(message);
   }
 );

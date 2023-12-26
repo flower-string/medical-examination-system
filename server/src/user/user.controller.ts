@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Session } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import session from 'express-session';
 
 @Controller('user')
 @ApiTags("用户接口")
@@ -42,5 +43,11 @@ export class UserController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
+  }
+
+  @Post('login')
+  async login(@Body() body: {name: string, password: string}, @Session() session) {
+     const message =  await this.userService.login(body);
+     return message;
   }
 }

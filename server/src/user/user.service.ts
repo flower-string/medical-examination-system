@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import session from 'express-session';
 
 @Injectable()
 export class UserService {
@@ -96,5 +97,33 @@ export class UserService {
     return {
       message: "用户删除成功",
     };
+  }
+
+  async login(body: {name: string, password: string}) {
+    const user = await this._userRepository.findOne({
+      where: {
+        name: body.name,
+        isdeleted: false
+      }
+    })
+    if(!user) {
+      return {
+        code: 1000,
+        message: '账号不存在'
+      }
+    }
+    if(user.password !== body.password) {
+      return {
+        code: 1001,
+        message: '密码错误'
+      }
+    }
+    console.log(`用户${user.name}登录成功`);
+    
+    return {
+      code: 1002,
+      message: '登录成功',
+      data: user
+    }
   }
 }

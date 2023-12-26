@@ -7,14 +7,12 @@
           @click="infoVisible = true"
         />
         <span>{{ userStore.name }}</span>
-        <button @click="quit">退出登录</button>
       </header>
       <el-menu
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#ffd04b"
         @select="handleSelect"
-        :collapse="isCollapse"
         :default-active="defaultActive">
           <el-menu-item v-for="item in menu" 
                         :index="item.path + ' ' + item.title">
@@ -38,8 +36,9 @@
       </el-form-item>
       <el-form-item label="余额" v-if="userType == 2">
         <el-input-number v-model="userStore.balance" disabled />
-        <el-button @click="renewalVisible = true">充值</el-button>
+        <el-button @click="renewalVisible = true" v-throttle>充值</el-button>
       </el-form-item>
+      <el-button @click="quit" class="exit">退出登录</el-button>
     </el-form>
   </el-dialog>
 
@@ -66,15 +65,12 @@ const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const menu = ref(null);
-const isCollapse = ref(false);
 const h1 = ref('');
-const info = ref({});
 const infoVisible = ref(false)
 const renewalVisible = ref(false);
 const renewalMoney = ref(0);
 const userType = localStorage.getItem('userType');
 menu.value = router.options.routes[+(localStorage.getItem('userType')) + 2].children.filter(item => Boolean(item.title))
-
 
 const getApi = () => {
   let api = null;
@@ -128,16 +124,6 @@ async function renewal() {
     renewalVisible.value = false;
   }
 }
-
-onMounted(async () => {
-  console.log(localStorage.getItem('userId'));
-  const api = getApi();
-  info.value = await api.findOne(localStorage.getItem('userId'));
-  userStore.setId(info.value.id);
-  userStore.setName(info.value.name);
-  userStore.setPassword(info.value.password);
-  userStore.setBalance(info.value.balance || 0);
-})
 </script>
 
 <style scoped>
@@ -148,7 +134,7 @@ onMounted(async () => {
 }
 
 header {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 aside {
@@ -172,13 +158,6 @@ header {
   position: relative;
   padding: 10px;
   background-color: #545c64;
-}
-
-header button {
-  position: absolute;
-  right: 10px;
-  background-color: dodgerblue;
-  padding: 5px;
 }
 
 h1 {

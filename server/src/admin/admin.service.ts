@@ -35,4 +35,30 @@ export class AdminService {
   remove(id: number) {
     return `This action removes a #${id} admin`;
   }
+
+  async login(body: {name: string, password: string}) {
+    const admin = await this._adminRepository.findOne({
+      where: {
+        name: body.name,
+      }
+    })
+    if(!admin) {
+      return {
+        code: 1000,
+        message: '账号不存在'
+      }
+    }
+    if(admin.password !== body.password) {
+      return {
+        code: 1001,
+        message: '密码错误'
+      }
+    }
+
+    return {
+      code: 1002,
+      message: '登录成功',
+      data: admin
+    }
+  }
 }

@@ -33,4 +33,10 @@ export class DoctorController {
   remove(@Param('id') id: string) {
     return this.doctorService.remove(+id);
   }
+
+  @Post('login')
+  async login(@Body() body: {name: string, password: string}) {
+    const message = await this.doctorService.login(body);
+    return message;
+  }
 }

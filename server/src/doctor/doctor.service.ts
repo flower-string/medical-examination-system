@@ -70,4 +70,31 @@ export class DoctorService {
       message: 'Doctor deleted successfully',
     };
   }
+
+  async login(body: {name: string, password: string}) {
+    const doctor = await this._doctorRepository.findOne({
+      where: {
+        name: body.name,
+        isdeleted: false
+      }
+    })
+    if(!doctor) {
+      return {
+        code: 1000,
+        message: '账号不存在'
+      }
+    }
+    if(doctor.password !== body.password) {
+      return {
+        code: 1001,
+        message: '密码错误'
+      }
+    }
+
+    return {
+      code: 1002,
+      message: '登录成功',
+      data: doctor
+    }
+  }
 }

@@ -25,7 +25,6 @@ class Axios {
   }
 
   async update(data) {
-    console.log(data)
     const item = await server.patch(this.url + '/' + data.id, data);
   }
 

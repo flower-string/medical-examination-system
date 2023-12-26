@@ -48,7 +48,6 @@ function showDetail(index, row) {
 
 async function initTableData() {
   logList.value = await logApi.findAll();
-  console.log(logList.value);
 }
 
 async function handleDelete(index, row) {

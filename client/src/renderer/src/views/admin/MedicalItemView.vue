@@ -208,11 +208,8 @@ async function editItem() {
     message: '项目更新成功'
   })
   const doctorId = EditForm.value.doctor
-  // console.log(doctorId);
   const doctor = doctorList.value.find((item) => item.id == doctorId)
-  // console.log(doctor);
   EditForm.value.doctor = doctor
-  // console.log(EditForm.value);
   itemList.value.splice(editCurrent.value, 1, EditForm.value)
 }
 
@@ -258,10 +255,8 @@ const form = ref({
 })
 
 const addItem = async () => {
-  console.log(form.value)
   dialogFormVisible.value = false
   const result = await itemApi.create(form.value)
-  console.log(result);
   // 向表格追加数据
   itemList.value.push(result)
   // 提示用户添加成功
@@ -285,8 +280,11 @@ const groupAddForm = ref({
 const groupUpdataForm = ref({});
 const createGroup = async () => {
   try {
+    if(groupAddForm.value.itemIds.length > 5) {
+      ElMessage.error("套餐项目不能超过5个！");
+      return;
+    }
     const group = await groupApi.create(groupAddForm.value);
-    console.log(group);
     ElMessage({
       type: 'success',
       message: "创建成功"
@@ -304,9 +302,7 @@ const createGroup = async () => {
     }
   }
 }
-const groupDetail = async (index, row) => {
-  console.log(index, row);
-}
+
 const editGroup = async (index, row) => {
   groupUpdataDialogVisible.value = true;
   groupCurrent.value = index;
@@ -323,9 +319,8 @@ const updataGroup = async () => {
   await groupApi.update(groupUpdataForm.value);
   groupUpdataDialogVisible.value = false;
   ElMessage.success("套餐更新成功");
-  const itemIds = groupUpdataForm.value.items;
+  const itemIds = groupUpdataForm.value.itemIds;
   const items = [];
-  console.log(itemIds);
   for(const itemId of itemIds) {
     const item = itemList.value.find(item => item.id === itemId);
     items.push(item);
@@ -355,8 +350,6 @@ const groupList = ref([])
 async function initTableData() {
   itemList.value = await itemApi.findAll()
   groupList.value = await groupApi.findAll()
-  console.log(itemList.value)
-  console.log(groupList.value)
 }
 
 const doctorList = ref([])

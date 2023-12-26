@@ -51,7 +51,7 @@
     <h5>
       体检项目
       <span>总价：{{ tprice }}</span>
-      <button @click="createRecord">提交</button>
+      <button @click="createRecord" v-throttle>提交</button>
     </h5>
     <ul>
       <li v-for="(value, key) in zhong">{{ value.name }} - 价格：{{ value.price }}</li>
@@ -61,6 +61,7 @@
 
 <script setup>
 import { logApi, itemApi, groupApi, userApi } from '../../http/api/crud'
+import { user_book } from '@renderer/http/api/sp'
 import ItemCard from './components/ItemCard.vue'
 import { useUserStore } from '@renderer/store/user';
 
@@ -83,24 +84,13 @@ async function yuyueGroup(status, data) {
     if(!status.value) {
       return;
     }
-    await await ElMessageBox.confirm(`您确定要预约这些${data.name}吗，这一共将花费${data.price}元`, 'Warning', {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    if(userStore.balance < data.price) {
-      ElMessage.error('余额不足');
-      return;
-    }
     const items = groups.value.find((el) => el.id === data.id).items.map((el) => el.id);
-    await logApi.create({
-      userId: parseInt(localStorage.getItem('userId')),
+    await _book({
+      userId: parseInt(userStore.id),
       pay: data.price,
       items
     })
-    ElMessage.success('预约成功');
   } catch (error) {
-    ElMessage.error("预约失败");
     status.value = false;
   }
 }
@@ -114,25 +104,33 @@ const tprice = computed(() => {
   return total
 })
 
+async function _book(data) {
+  if(userStore.balance < tprice.value) {
+    ElMessage.error('余额不足');
+    return;
+  }
+  await ElMessageBox.confirm(`您确定要预约吗，这一共将花费${data.pay}元`, 'Warning', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  await user_book(data)
+}
+
 async function createRecord() {
   try {
-    await ElMessageBox.confirm(`您确定要预约这些体检项目吗，这一共将花费${tprice.value}元`, 'Warning', {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    await logApi.create({
-      userId: parseInt(localStorage.getItem('userId')),
+    if(zhong.value.length > 5) {
+      ElMessage.error('一次最多只能预约5个体检项目');
+      return;
+    }
+    await _book({
+      userId: parseInt(userStore.id),
       pay: tprice.value,
       items: Object.values(zhong.value).map((item) => item.id)
     })
     zhong.value = {}
-    ElMessage.success('预约成功')
   } catch (error) {
-    console.log("预约失败");
-    ElMessage.error("预约失败")
   }
-  
 }
 
 onMounted(async () => {

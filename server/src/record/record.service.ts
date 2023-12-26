@@ -90,7 +90,8 @@ export class RecordService {
 
   // 更新体检进度
   async update(id: number, updateRecordDto: UpdateRecordDto) {
-    this._recordRepository.update(id, {
+    // 这里加上await，确保这条记录已经更新完成
+    await this._recordRepository.update(id, {
       advice: updateRecordDto.advice,
       result: updateRecordDto.result,
       status: 1

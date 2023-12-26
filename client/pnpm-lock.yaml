@@ -29,9 +29,18 @@ dependencies:
   pinia:
     specifier: ^2.1.7
     version: 2.1.7(vue@3.3.4)
+  v-viewer:
+    specifier: ^1.7.1
+    version: 1.7.1(vue@3.3.4)
+  viewerjs:
+    specifier: ^1.11.6
+    version: 1.11.6
   vue-router:
     specifier: '4'
     version: 4.2.5(vue@3.3.4)
+  vue3-image-preview:
+    specifier: ^0.2.7
+    version: 0.2.7(vue@3.3.4)
 
 devDependencies:
   '@electron-toolkit/eslint-config':
@@ -4006,6 +4015,16 @@ packages:
     hasBin: true
     dev: false
 
+  /v-viewer@1.7.1(vue@3.3.4):
+    resolution: {integrity: sha512-2HO4Mc5Tw70oJ2RIp3H8WDQe6jHBpS2Q8itHnDS0pqfv2uxkt161IHsEgRrpAtMsohUo9xuFfxHKxDtvARo4Yw==}
+    peerDependencies:
+      vue: ^2.0.0
+    dependencies:
+      lodash: 4.17.21
+      viewerjs: 1.11.6
+      vue: 3.3.4
+    dev: false
+
   /verror@1.10.1:
     resolution: {integrity: sha512-veufcmxri4e3XSrT0xwfUR7kguIkaxBeosDg00yDWhk49wdwkSUrvvsm7nc75e1PUyvIeZj6nS8VQRYz2/S4Xg==}
     engines: {node: '>=0.6.0'}
@@ -4016,6 +4035,10 @@ packages:
       extsprintf: 1.4.1
     dev: true
     optional: true
+
+  /viewerjs@1.11.6:
+    resolution: {integrity: sha512-TlhdSp2oEOLFXvEp4psKaeTjR5zBjTRcM/sHUN8PkV1UWuY8HKC8n7GaVdW5Xqnwdr/F1OmzLik1QwDjI4w/nw==}
+    dev: false
 
   /vite@4.4.9(less@4.2.0):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
@@ -4092,6 +4115,14 @@ packages:
       vue: ^3.2.0
     dependencies:
       '@vue/devtools-api': 6.5.1
+      vue: 3.3.4
+    dev: false
+
+  /vue3-image-preview@0.2.7(vue@3.3.4):
+    resolution: {integrity: sha512-XlHO6O8jFCz82+Q40rOfY2f2jCt+gnd3/NspqADVaAuoGP3GwTMVdU+iVkPUHQyDHlMeVSc/epNcsI1Varsadw==}
+    peerDependencies:
+      vue: ^3.2.45
+    dependencies:
       vue: 3.3.4
     dev: false
 

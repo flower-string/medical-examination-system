@@ -22,6 +22,7 @@ async function bootstrap() {
     }
   }));
   app.enableCors();
+  app.use(session({secret: 'med', rolling: true, name: 'med.sid', cookie: {maxAge: -1}}));
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter(new Logger()))
   await app.listen(3000);
