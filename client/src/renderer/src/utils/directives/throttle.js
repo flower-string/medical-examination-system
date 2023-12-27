@@ -2,14 +2,13 @@ export default {
   mounted(el, binding) {
     let throttleTime = binding.value // 节流时间
     if (!throttleTime) {
-      // 用户若不设置节流时间，则默认2s
+      // 用户若不设置节流时间，则默认5s
       throttleTime = 5000
     }
     let cbFun
     el.addEventListener(
       'click',
       () => {
-        console.log("点击按钮");
         if (!el.disabled) {
           el.disabled = true
           cbFun = setTimeout(() => {

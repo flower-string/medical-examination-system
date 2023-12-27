@@ -47,14 +47,7 @@ export class LogService {
     if(!user) {
       throw new Error("用户不存在"); 
     } 
-
-    if(user.balance < createLogDto.pay) {
-      return {
-        message: "余额不足",
-        code: 1002,
-        data: 400
-      }
-    } 
+    
     const { data: logs } = await this.findLogsByUserId(user.id);
     // 如果有未完成的预约
     for(const log of logs) {
@@ -118,24 +111,29 @@ export class LogService {
 
   // 取消预约
   async cancel(id: number) {
+    const log = await this.findOne(id);
+    // 查询是否已取消或已完成
+    if(log.status === 2 || log.status === 1) {
+      return {
+        code: 1001,
+        message: "预约已取消或已完成"
+      }
+    }
     // 更新log记录
     await this._logRepository.update(id, {
       status: 2
     })
-    // 查找关联数据
-    const { records, user, pay } = await this._logRepository.findOne({
-      where: { id },
-      relations: ['records', 'user']
-    });
     // 更新record记录
-    for(let i = 0; i < records.length; i++) {
-      await this._recordRepository.update(records[i].id, {
+    for(let i = 0; i < log.records.length; i++) {
+      await this._recordRepository.update(log.records[i].id, {
         status: 2
       })
     }
     // 退款
-    user.balance += pay;
-    this._userRepository.save(user);
+    if(log.status == 0) {
+      log.user.balance += log.pay;
+      this._userRepository.save(log.user);
+    }
     // 调试日志
     console.log(`log/cancel, id为${id}的预约记录被取消`);
     return {
@@ -159,6 +157,31 @@ export class LogService {
       data: logs,
       message: '查询预约记录成功'
     };
+  }
+
+  // 支付
+  async pay(id: number) {
+    // 查询log记录
+    const log = await this.findOne(id);
+    // 查询余额
+    if(log.user.balance < log.pay) {
+      return {
+        message: "余额不足",
+        code: 2001
+      }
+    }
+    // 扣除余额
+    log.user.balance -= log.pay;
+    this._userRepository.save(log.user);
+    // 支付成功，更新预约状态
+    log.status = 1;
+    this._logRepository.save(log);
+    console.log(`log/pay, id为${id}的预约记录被支付`);
+
+    return {
+      message: "支付成功",
+      code: 200
+    }
   }
 
   update(id: number, updateLogDto: UpdateLogDto) {

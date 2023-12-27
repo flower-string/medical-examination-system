@@ -114,7 +114,7 @@ const showReport = (value) => {
 }
 
 const canvas = ref(null);
-const showInvoices = (value) => {
+const showInvoices = async (value) => {
   // if(value.status === 0) {
   //   ElMessage.info("体检还未开始，无法查看收费单")
   //   return;
@@ -123,16 +123,79 @@ const showInvoices = (value) => {
   //   ElMessage.info("体检已取消，无法查看收费单")
   //   return;
   // }
+  canvas.value.width = 1150;
+  canvas.value.height = 700;
   const ctx = canvas.value.getContext('2d');
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, 1150, 700);
-  ctx.beginPath();
-  ctx.font = 72;
-  ctx.fillText("收费单据", 506, 160)
-  imageUrl.value = canvas.value.toDataURL()
-  preview({
-    images: [imageUrl]
-  })
+  // 绘制背景图像\
+  console.log(value);
+  const backgroundImage = new Image();
+  const InvoiceMode = await import('@renderer/assets/收费单据模板.png');
+  backgroundImage.src = InvoiceMode.default;
+  backgroundImage.onload = () => {
+    console.log("图像加载完成");
+    ctx.drawImage(backgroundImage, 0, 0, 1150, 700);
+    // 客户名称
+    ctx.font = '35px 宋体';
+    ctx.fillStyle = '#000';
+    ctx.fillText(value.user.name, 180, 150)
+    // 体检时间
+    ctx.fillText(_timeFormate(value.createTime), 830, 150)
+    // 体检项目
+    let total = 0
+    for(let i = 0; i < value.records.length; i++) {
+      const record = value.records[i];
+      ctx.fillText(record.item.name, 200, 250 + i * 55);
+      ctx.fillText(record.item.price, 660, 250 + i * 55);
+      total += record.item.price;
+    }
+    // 合计
+    ctx.fillText(value.pay, 950, 600);
+    ctx.fillText(_convertToWords(value.pay), 250, 600);
+    // 备注
+    if(value.pay < total) {
+      ctx.fontSize = '20px';
+      ctx.fillText(`优惠：${total - value.pay}`, 800, 300);
+    }
+    ctx.fillText
+    // 预览
+    imageUrl.value = canvas.value.toDataURL()
+    preview({
+      images: [imageUrl]
+    })
+  }
+  
+  function _timeFormate(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    return year + '年' + month + '月' + day + '日';
+  }
+
+  function _convertToWords(amount) {
+    const units = ['   ', ' 一', ' 二', ' 三', ' 四', ' 五', ' 六', ' 七', ' 八', ' 九'];
+    const scales = ['', '十', '百', '千', '万'];
+
+    if (amount === 0) {
+      return '零元';
+    }
+
+    let numStr = amount.toString();
+
+    if (numStr.length > 5) {
+      throw new Error('超出转换范围');
+    }
+
+    numStr = '0'.repeat(5 - numStr.length) + numStr;
+    const digits = numStr.split('').map(Number);
+    console.log(digits);
+
+    const result = `${units[digits[0]] ?? '  '}万${units[digits[1]] ?? '  '}千${units[digits[2]] ?? '  '}百${units[digits[3]] ?? '  '}十${units[digits[4]] ?? '  '}元`
+
+    return result;
+  }
 }
 </script>
 

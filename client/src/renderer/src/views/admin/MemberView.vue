@@ -144,6 +144,7 @@ const currentIndex = ref(-1)
 function openEditDialog(index, row) {
   dialogEditVisible.value = true
   editForm.value = {
+    id: row.id,
     name: row.name,
     type: row.type
   }
@@ -151,72 +152,50 @@ function openEditDialog(index, row) {
 }
 
 // 更新用户信息
-const handleEdit = () => {
-  dialogEditVisible.value = false
-  const api = getApi(editForm.value)
-  const type = editForm.value.type
-  delete editForm.value.type
-  editForm.value.id = tableList.value[currentIndex.value].id
+const handleEdit = async () => {
+  const api = getApi(editForm.value);
   if (!editForm.value.id) {
     throw new Error('缺少id')
   }
-  api
-    .update(editForm.value)
-    .then(() => {
-      ElMessage({
-        showClose: true,
-        message: '信息更新成功',
-        type: 'success'
-      })
-      editForm.value.type = type
-      if (tabName === '普通用户') {
-        userList.splice(currentIndex.value, 1, editForm.value)
-      } else {
-        doctorList.splice(currentIndex.value, 1, editForm.value)
-      }
-    })
-    .catch((err) => {
-      ElMessage({
-        showClose: true,
-        message: '信息更新失败',
-        type: 'error'
-      })
-    })
+  try {
+    const type = editForm.value.type
+    delete editForm.value.type
+    await api.update(editForm.value);
+    dialogEditVisible.value = false;
+    ElMessage.success('信息更新成功');
+    if (type === '普通用户') {
+      userList.value[currentIndex.value].name = editForm.value.name;
+    } else {
+      doctorList.value[currentIndex.value].name = editForm.value.name;
+    }
+  } catch {
+    ElMessage.error('信息更新失败');
+  }
 }
 
 // 删除用户
-const handleDelete = (index, row) => {
+const handleDelete = async (index, row) => {
   // 弹框提示是否删除用户
-  ElMessageBox.confirm('确定删除该用户吗?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then((res) => {
-      // 确定请求器
-      const api = getApi(row)
-      // 发送删除请求
-      return api.delete(row.id)
-    })
-    .then((res) => {
-      // 提示用户删除成功
-      ElMessage({
-        showClose: true,
-        message: '删除成功',
-        type: 'success'
-      })
-      // 将数据从表格中移除
-      const list = tabName === '普通用户' ? userList : doctorList
-      list.value.splice(index, 1)
-    })
-    .catch(() => {
-      // 提示用户删除失败
-      ElMessage({
-        showClose: true,
-        message: '删除失败',
-        type: 'error'
-      })
-    })
+  try {
+    await ElMessageBox.confirm('确定删除该用户吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+    // 确定删除用户
+    const api = getApi(row);
+    // 发送删除请求
+    await api.delete(row.id);
+    ElMessage.success('删除成功');
+    // 将数据从表格中移除
+    if(tabName.value === '普通用户') {
+      userList.value.splice(index, 1);
+    } else {
+      doctorList.value.splice(index, 1);
+    }
+  } catch {
+    ElMessage.error('删除失败')
+  }
 }
 
 const dialogFormVisible = ref(false)

@@ -9,7 +9,7 @@
         <option value="1">医生</option>
         <option value="2">普通用户</option>
       </select>
-      <button @click="login" class="btn" v-throttle>登录</button>
+      <button @click="login" class="btn">登录</button>
       <div class="footer">
         <div class="Remember">
           <input type="checkbox" id="rememberMe" />
@@ -23,7 +23,7 @@
       <h2 class="title">注册</h2>
       <input type="text" class="username" placeholder="Username" v-model="regForm.name"/>
       <input type="password" class="password" placeholder="Password" v-model="regForm.password"/>
-      <button class="btn" @click="register" v-throttle="10000">注册并登录</button>
+      <button class="btn" @click="register" ref="regBtn">注册并登录</button>
       <div class="footer">
         <div></div>
         <button class="Swi" @click="showLoginBox">去登录</button>
@@ -58,13 +58,21 @@ const userStore = useUserStore();
     loginBox.value.style.display = 'none'
   }
 
-  const login = () => { 
+  let loginLock = false;
+  const login = async () => { 
+    if(loginLock) return;
     if(loginForm.value.name.trim() == '' || loginForm.value.password.trim() == '') {
       alert('用户名或密码不能为空');
       return;
     }
+
     // 登录逻辑
-    _login({type: parseInt(loginForm.value.type), name: loginForm.value.name, password: loginForm.value.password});
+    loginLock = true;
+    try {
+      await _login({type: parseInt(loginForm.value.type), name: loginForm.value.name, password: loginForm.value.password});
+    } finally {
+      loginLock = false;
+    } 
   }
 
   const regForm = ref({
@@ -78,43 +86,44 @@ const userStore = useUserStore();
     id = parseInt(id);
     // 鉴权认证
     const info = await auth_login(type, data);
-    console.log(info);
     // 认证通过，保存登录信息
     localStorage.setItem('userType', type);
     localStorage.setItem('userId', info.id);
-    userStore.setId(info.id);
-    userStore.setName(info.name);
-    userStore.setPassword(info.password);
-    userStore.setBalance(info.balance || 0);
     // 跳转页面
     if(type == 0) router.push('/admin');
     else if(type == 1) router.push('/doctor');
     else router.push('/user');
   }
 
+  let regLock = false;
   const register = async () => {
+    if(regLock) return;
     if(regForm.value.name.trim() == '' || regForm.value.password.trim() == '') {
-      alert('用户名或密码不能为空');
+      ElMessage.error('用户名或密码不能为空');
       return;
     }
     if(regForm.value.password.trim().length < 6) {
-      alert('密码长度不能小于6');
+      ElMessage.error('密码长度不能小于6');
       return;
     }
-    console.log("准备注册");
     // 注册逻辑
     try {
-      await ElMessageBox.confirm('注册账号后需使用ID和密码进行登录，请牢记!，点击头像可以查看自己的ID和相关信息', '提示', {
+      await ElMessageBox.confirm('请牢记密码，点击头像可以查看自己的ID和相关信息', '提示', {
         confirmButtonText: '我已了解',
         cancelButtonText: '取消注册',
         type: 'warning'
       })
+      regLock = true;
+      console.log(regLock);
       const user = await userApi.create(regForm.value);
-      ElMessage.success('注册成功');
-      _login({ type: 2, id: user.name, password: user.password })
+      ElMessage.success('注册成功，即将自动登录');
+      // 注册成功后自动登录
+      await _login({ type: 2, name: user.name, password: user.password });
     } catch {
       ElMessage.error('注册失败');
-    }
+    } finally {
+      regLock = false;
+    } 
   }
 </script>
 

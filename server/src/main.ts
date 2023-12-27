@@ -8,7 +8,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const options = new DocumentBuilder().setTitle("健康中心体检系统接口文档").setDescription("接口文档，共同协作，共同完善").setVersion("1.0").build();
+  const options = new DocumentBuilder().setTitle("健康中心体检系统接口文档").setDescription("接口文档，共同协作，共同完善，之后会进行更新，但基本用法不会更改").setVersion("1.0").build();
 
   const document = SwaggerModule.createDocument(app, options);
 

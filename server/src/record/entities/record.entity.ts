@@ -10,7 +10,9 @@ enum RecordStatusEnum {
   // 已完成
   FINISHED = 1,
   // 已取消
-  CANCEL = 2
+  CANCEL = 2,
+  // 未付费
+  NOPAY = 3,
 }
 
 @Entity()

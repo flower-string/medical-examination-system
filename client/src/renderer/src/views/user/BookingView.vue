@@ -51,7 +51,7 @@
     <h5>
       体检项目
       <span>总价：{{ tprice }}</span>
-      <button @click="createRecord" v-throttle>提交</button>
+      <button @click="createRecord">提交</button>
     </h5>
     <ul>
       <li v-for="(value, key) in zhong">{{ value.name }} - 价格：{{ value.price }}</li>

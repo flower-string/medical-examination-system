@@ -36,7 +36,7 @@
       </el-form-item>
       <el-form-item label="余额" v-if="userType == 2">
         <el-input-number v-model="userStore.balance" disabled />
-        <el-button @click="renewalVisible = true" v-throttle>充值</el-button>
+        <el-button @click="renewalVisible = true">充值</el-button>
       </el-form-item>
       <el-button @click="quit" class="exit">退出登录</el-button>
     </el-form>
@@ -124,6 +124,17 @@ async function renewal() {
     renewalVisible.value = false;
   }
 }
+
+onMounted(async () => {
+  // 获取用户信息，防止刷新后登录信息丢失
+  const api = getApi();
+  const id = +localStorage.getItem('userId');
+  const info = await api.findOne(id);
+  userStore.setId(info.id);
+  userStore.setName(info.name);
+  userStore.setPassword(info.password);
+  userStore.setBalance(info.balance || 0);
+})
 </script>
 
 <style scoped>

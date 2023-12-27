@@ -9,7 +9,6 @@ import { AdminModule } from './admin/admin.module';
 import { ItemModule } from './item/item.module';
 import { GroupModule } from './group/group.module';
 import { LogModule } from './log/log.module';
-import { StatisticModule } from './statistic/statistic.module';
 
 @Module({
   imports: [
@@ -31,7 +30,6 @@ import { StatisticModule } from './statistic/statistic.module';
     ItemModule,
     GroupModule,
     LogModule,
-    StatisticModule
   ],
   controllers: [AppController],
   providers: [AppService],

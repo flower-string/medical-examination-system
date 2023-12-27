@@ -201,6 +201,22 @@ const handleEdit = (index, row) => {
 }
 
 async function editItem() {
+  if(EditForm.value.doctor == null) {
+    ElMessage.error("请选择医生");
+    return;
+  }
+  if(EditForm.value.name == null) {
+    ElMessage.error("请输入项目名称");
+    return;
+  }
+  if(EditForm.value.price < 0 || EditForm.value.price > 1000) {
+    ElMessage.error("正确的价格区间为0-1000");
+    return;
+  }
+  if(EditForm.value.desc == null) {
+    ElMessage.error("请输入项目描述");
+    return;
+  }
   await itemApi.update(EditForm.value)
   dialogEditVisible.value = false
   ElMessage({
@@ -255,6 +271,22 @@ const form = ref({
 })
 
 const addItem = async () => {
+  if(EditForm.value.doctor == null) {
+    ElMessage.error("请选择医生");
+    return;
+  }
+  if(EditForm.value.name == null) {
+    ElMessage.error("请输入项目名称");
+    return;
+  }
+  if(EditForm.value.price < 0 || EditForm.value.price > 1000) {
+    ElMessage.error("正确的价格区间为0-1000");
+    return;
+  }
+  if(EditForm.value.desc == null) {
+    ElMessage.error("请输入项目描述");
+    return;
+  }
   dialogFormVisible.value = false
   const result = await itemApi.create(form.value)
   // 向表格追加数据
@@ -284,6 +316,10 @@ const createGroup = async () => {
       ElMessage.error("套餐项目不能超过5个！");
       return;
     }
+    if(groupAddForm.value.price <= 0 || group.value.price > 1000) {
+      ElMessage.error("套餐价格应该在0-1000之间！");
+      return;
+    }
     const group = await groupApi.create(groupAddForm.value);
     ElMessage({
       type: 'success',
@@ -307,6 +343,14 @@ const editGroup = async (index, row) => {
   groupUpdataDialogVisible.value = true;
   groupCurrent.value = index;
   const itemIds = row.items.map(el => el.id);
+  if(itemIds.length > 5) {
+    ElMessage.error("套餐项目不能超过5个！");
+    return;
+  }
+  if(row.price <= 0 || row.price > 1000) {
+    ElMessage.error("套餐价格应该在0-1000之间！");
+    return;
+  }
   groupUpdataForm.value = {
     id: row.id,
     name: row.name,

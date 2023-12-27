@@ -11,6 +11,13 @@ export class ItemService {
   constructor(@InjectRepository(Item) private readonly _itemRepository: Repository<Item>, 
               @InjectRepository(Doctor) private readonly _doctorReposotory: Repository<Doctor>) {}
   async create(createItemDto: CreateItemDto) {
+    if(createItemDto.price < 0 || createItemDto.price > 1000) {
+      // return {
+      //   message: 'Price must be between 0 and 1000',
+      //   code: 2001
+      // }
+      throw new Error('Price must be between 0 and 1000');
+    }
     const item = new Item();
     item.name = createItemDto.name;
     item.price = createItemDto.price;

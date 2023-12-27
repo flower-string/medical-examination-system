@@ -35,7 +35,8 @@ export class RecordService {
     this._recordRepository.save(record);
     return {
       message: "预约成功",
-      data: record
+      data: record,
+      code: 200
     };
   }
 
@@ -46,7 +47,11 @@ export class RecordService {
         doctor: { id: doctorId } 
       }
     })
-    return records;
+    return {
+      data: records,
+      code: 200,
+      message: 'success'
+    };
   }
 
   // 获取指定用户的所有体检记录
@@ -61,7 +66,8 @@ export class RecordService {
     console.log("返回指定用户的体检记录，总条数为：", records.length);
     return {
       data: records,
-      message: '返回指定用户的体检记录'
+      message: '返回指定用户的体检记录',
+      code: 200
     }
   }
 
@@ -72,7 +78,8 @@ export class RecordService {
     });
     return {
       message: "查询成功", 
-      data: records 
+      data: records,
+      code: 200 
     };
   }
 
@@ -84,12 +91,25 @@ export class RecordService {
     
     return records ? {
       message: "查询成功",
-      data: records
-    } : "no this id";
+      data: records,
+      code: 200,
+    } : {
+      message: "未找到该记录",
+      data: null,
+      code: 2001
+    };
   }
 
   // 更新体检进度
   async update(id: number, updateRecordDto: UpdateRecordDto) {
+    // 查询体检是否付费，若未付费，则不能更新
+    const { data: record } = await this.findOne(id);
+    if(record.status === 3) {
+      return {
+        message: "该记录未付费，无法开始体检",
+        data: null
+      }
+    }
     // 这里加上await，确保这条记录已经更新完成
     await this._recordRepository.update(id, {
       advice: updateRecordDto.advice,
@@ -119,6 +139,7 @@ export class RecordService {
     }
     return {
       message: "更新成功",
+      code: 200
     };
   }
 
@@ -127,6 +148,7 @@ export class RecordService {
     this._recordRepository.delete(id);
     return {
       message: "删除成功",
+      code: 200
     };
   }
 }

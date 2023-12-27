@@ -2,10 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('admin')
 @ApiTags("管理员接口")
+@ApiOkResponse({ description: '管理员只有登录合获取信息的接口生效' })
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 

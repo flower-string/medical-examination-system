@@ -8,7 +8,9 @@ enum logStatus {
   // 已完成
   FINISHED = 1,
   // 已取消
-  CANCEL = 2
+  CANCEL = 2,
+  // 未付费
+  NOPAY = 3
 }
 
 @Entity()
@@ -26,7 +28,7 @@ export class Log {
   @Column({type: 'boolean', default: false})
   isdeleted: boolean
 
-  @Column({type: 'enum', default: 0, enum: logStatus})
+  @Column({type: 'enum', default: 3, enum: logStatus})
   status: number
 
   @ManyToOne(() => User, (user) => user.id)

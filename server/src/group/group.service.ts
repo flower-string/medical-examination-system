@@ -12,6 +12,13 @@ export class GroupService {
               @InjectRepository(Item) private readonly _itemRepository: Repository<Item>,) {}
 
   async create(createGroupDto: CreateGroupDto) {
+    if(createGroupDto.itemIds.length <= 1) {
+      // return {
+      //   message: '至少需要两个体检项目',
+      //   code: 2001
+      // }
+      throw new Error("套餐至少需要两个体检项目");
+    }
     const group = new Group()
     group.name = createGroupDto.name;
     group.desc = createGroupDto.desc; 
