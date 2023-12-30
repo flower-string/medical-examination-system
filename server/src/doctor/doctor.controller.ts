@@ -31,7 +31,8 @@ export class DoctorController {
   @Get(':id')
   @ApiOkResponse({ description: "获取指定的医生信息，需要管理员权限或医生权限" })
   findOne(@Param('id') id: string, @Session() session) {
-    if(session.loginType !== 'admin' || session.loginType !== 'doctor') {
+    console.log(session);
+    if(session.loginType !== 'admin' && session.loginType !== 'doctor') {
       throw new Error("权限不足");
     }
     return this.doctorService.findOne(+id);
@@ -40,7 +41,7 @@ export class DoctorController {
   @Patch(':id')
   @ApiOkResponse({ description: "更新一个医生的信息，需要管理员权限或医生权限" })
   update(@Param('id') id: string, @Body() updateDoctorDto: UpdateDoctorDto, @Session() session) {
-    if(session.loginType !== 'admin' || session.loginType !== 'doctor') {
+    if(session.loginType !== 'admin' && session.loginType !== 'doctor') {
       throw new Error("权限不足");
     }
     return this.doctorService.update(+id, updateDoctorDto);

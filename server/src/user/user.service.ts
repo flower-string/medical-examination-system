@@ -118,7 +118,6 @@ export class UserService {
       }
     }
     console.log(`用户${user.name}登录成功`);
-    
     return {
       code: 1002,
       message: '登录成功',

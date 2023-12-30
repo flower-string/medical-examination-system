@@ -48,7 +48,7 @@ export class RecordController {
   @Patch(':id')
   @ApiOkResponse({ description: '更新某次体检记录，需要医生权限或管理员权限' })
   update(@Param('id') id: number, @Body() updateRecordDto: UpdateRecordDto, @Session() session) {
-    if(session.loginType != 'doctor' || session.loginType != 'admin') {
+    if(session.loginType != 'doctor' && session.loginType != 'admin') {
       throw new Error("权限不足");
     }
     return this.recordService.update(+id, updateRecordDto);

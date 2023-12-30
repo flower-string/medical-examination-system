@@ -8,11 +8,11 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const options = new DocumentBuilder().setTitle("健康中心体检系统接口文档").setDescription("接口文档，共同协作，共同完善，之后会进行更新，但基本用法不会更改").setVersion("1.0").build();
+  const options = new DocumentBuilder().setTitle("健康中心体检系统接口文档").setDescription("接口文档，共同协作，共同完善，之后会进行更新，但基本用法不会更改").setVersion("1.0").build(); 
 
   const document = SwaggerModule.createDocument(app, options);
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api-docs', app, document);
   app.use(session({
     secret: 'cat',
     rolling: true,
@@ -22,9 +22,10 @@ async function bootstrap() {
     }
   }));
   app.enableCors();
-  app.use(session({secret: 'med', rolling: true, name: 'med.sid', cookie: {maxAge: -1}}));
+  app.use(session({secret: 'med', rolling: true, name: 'med.sid', cookie: {maxAge: 1000000} }));
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter(new Logger()))
-  await app.listen(3000);
+  // app.setGlobalPrefix('api')
+  await app.listen(3000); 
 }
 bootstrap();

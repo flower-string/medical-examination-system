@@ -2,6 +2,8 @@ import axios from 'axios';
 import server from '../server'
 import serverConfig from '../config';
 import { ElMessage } from 'element-plus';
+axios.defaults.baseURL = serverConfig.baseURL;
+axios.defaults.withCredentials = true;
 
 export function userEenewal(id, value) {
   server.patch(`/user/renewal/${id}`, { value })
@@ -16,13 +18,13 @@ export async function doctor_getUserInfoAndRecords(id) {
 
 export async function user_getUserLogs(id) {
   const logs = await server.get(`/log/user/${id}`);
-  return logs;
+  return logs; 
 }
 
 export async function user_book(data) {
   const { data: res } = await axios({
     method: 'post',
-    url: serverConfig.baseURL + '/log',
+    url: '/log',
     data
   })
   const { code, message } = res;
@@ -41,9 +43,9 @@ export async function cancelBook(id) {
 export async function auth_login(type, body) {
   let url = '';
   switch (type) {
-    case 0: url = serverConfig.baseURL + '/admin/login/'; break;
-    case 1: url = serverConfig.baseURL + '/doctor/login/'; break;
-    case 2: url = serverConfig.baseURL + '/user/login/'; break;
+    case 0: url = '/admin/login/'; break;
+    case 1: url = '/doctor/login/'; break;
+    case 2: url = '/user/login/'; break;
   }
   const { data } = await axios({
     method: 'post',

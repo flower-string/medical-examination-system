@@ -6,11 +6,8 @@ import { Log } from './entities/log.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Record } from 'src/record/entities/record.entity';
-import { Server } from 'mysql2/typings/mysql/lib/Server';
 import { RecordService } from 'src/record/record.service';
-import { join } from 'path';
 import { UserService } from 'src/user/user.service';
-import CustomError from 'src/common/error/CustomError';
 
 @Injectable()
 export class LogService {
