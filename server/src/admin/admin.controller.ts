@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Session } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
@@ -36,8 +36,12 @@ export class AdminController {
   }
 
   @Post('login')
-  async login(@Body() body: {name: string, password: string}) {
+  async login(@Body() body: {name: string, password: string}, @Session() session) {
     const message = await this.adminService.login(body);
+    if(message.code === 1002) {
+      session.user = message.data; // 设置session
+      session.loginType = 'admin'; // 设置session
+    }
     return message;
   }
 }

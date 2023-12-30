@@ -62,3 +62,19 @@ export async function auth_login(type, body) {
   }
 }
 
+export async function user_pay(logId) { 
+  try {
+    const { data } = await axios({
+      method: 'patch',
+      url: serverConfig.baseURL + '/log/pay/' + logId,
+    })
+    const { code } = data;
+    if (code === 200) { 
+      ElMessage.success('支付成功');
+    } else {
+      throw new Error('支付失败');
+    }
+  } catch {
+    ElMessage.error('支付失败');
+  }
+}

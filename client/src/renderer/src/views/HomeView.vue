@@ -22,7 +22,9 @@
     </aside>
     <main>
       <h1>{{ h1 }}</h1>
-      <router-view />
+      <keep-alive>
+        <router-view />
+      </keep-alive>
     </main>
   </div>
 

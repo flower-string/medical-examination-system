@@ -271,19 +271,19 @@ const form = ref({
 })
 
 const addItem = async () => {
-  if(EditForm.value.doctor == null) {
+  if(form.value.doctorId == null) {
     ElMessage.error("请选择医生");
     return;
   }
-  if(EditForm.value.name == null) {
+  if(form.value.name == null) {
     ElMessage.error("请输入项目名称");
     return;
   }
-  if(EditForm.value.price < 0 || EditForm.value.price > 1000) {
+  if(form.value.price < 0 || EditForm.value.price > 1000) {
     ElMessage.error("正确的价格区间为0-1000");
     return;
   }
-  if(EditForm.value.desc == null) {
+  if(form.value.desc == null) {
     ElMessage.error("请输入项目描述");
     return;
   }

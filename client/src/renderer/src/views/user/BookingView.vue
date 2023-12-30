@@ -105,10 +105,6 @@ const tprice = computed(() => {
 })
 
 async function _book(data) {
-  if(userStore.balance < tprice.value) {
-    ElMessage.error('余额不足');
-    return;
-  }
   await ElMessageBox.confirm(`您确定要预约吗，这一共将花费${data.pay}元`, 'Warning', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',

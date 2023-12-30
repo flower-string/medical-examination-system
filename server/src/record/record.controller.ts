@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Session } from '@nestjs/common';
 import { RecordService } from './record.service';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import session from 'express-session';
 
 @Controller('record')
 @ApiTags("体检记录接口")
@@ -45,8 +46,11 @@ export class RecordController {
 
   // 更新某次体检记录
   @Patch(':id')
-  @ApiOkResponse({ description: '更新某次体检记录' })
-  update(@Param('id') id: number, @Body() updateRecordDto: UpdateRecordDto) {
+  @ApiOkResponse({ description: '更新某次体检记录，需要医生权限或管理员权限' })
+  update(@Param('id') id: number, @Body() updateRecordDto: UpdateRecordDto, @Session() session) {
+    if(session.loginType != 'doctor' || session.loginType != 'admin') {
+      throw new Error("权限不足");
+    }
     return this.recordService.update(+id, updateRecordDto);
   }
 

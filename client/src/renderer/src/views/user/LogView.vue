@@ -8,8 +8,17 @@
           <med-record-status :status="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="Operations" width="120">
+      <el-table-column fixed="right" label="Operations">
         <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click.prevent="pay(scope.$index, scope.row)"
+            v-if="scope.row.status === 3"
+          >
+            缴费
+          </el-button>
           <el-button
             link
             type="primary"
@@ -23,6 +32,7 @@
             type="primary"
             size="small"
             @click.prevent="cancel(scope.$index, scope.row)"
+            v-if="scope.row.status === 3 || scope.row.status === 0"
           >
             取消
           </el-button>
@@ -52,17 +62,26 @@
   </div>
 
   <canvas ref="canvas"></canvas>
+  <div id="report">
+    <h1>体检报告</h1>
+  </div>
 </template>
 
 <script setup>
-import { user_getUserLogs, cancelBook } from '../../http/api/sp'
+import { user_getUserLogs, cancelBook, user_pay } from '../../http/api/sp'
 
 import MedRecordDetail from '@renderer/components/MedRecordDetail.vue'
 import MedRecordStatus from '@renderer/components/MedRecordStatus.vue'
-import { preview } from 'vue3-image-preview';
+import { preview } from 'vue3-image-preview'
+import domToImage from 'dom-to-image'
+import { useUserStore } from '@renderer/store/user'
+import tools from '@renderer/utils/tools'
+
+const userStore = useUserStore()
 
 onMounted(async () => {
   tableData.value = await user_getUserLogs(localStorage.getItem('userId'))
+  tableData.value.forEach(item => item.createTime = tools._timeFormate(item.createTime));
 })
 
 const tableData = ref([])
@@ -76,6 +95,22 @@ function showDetail(index) {
   drawer.value = true
 }
 
+const pay = async (index, row) => {
+  try {
+    await ElMessageBox.confirm('确认要支付吗？', 'Warning', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    if (userStore.balance < row.pay) {
+      ElMessage.error('余额不足')
+      return
+    }
+    await user_pay(row.id)
+    row.status = 0
+  } catch {}
+}
+
 async function cancel(index, row) {
   await ElMessageBox.confirm('确认要取消吗？', 'Warning', {
     confirmButtonText: '确认',
@@ -85,9 +120,9 @@ async function cancel(index, row) {
   // 判断是否可以取消
   for (let i = 0; i < list.value.length; i++) {
     if (list.value[i].status !== 0) {
-      can = false;
-      ElMessage.info("体检已经开始，无法取消");
-      return;
+      can = false
+      ElMessage.info('体检已经开始，无法取消')
+      return
     }
   }
 
@@ -101,62 +136,104 @@ async function cancel(index, row) {
   }
 }
 
-const imageUrl = ref('');
-const showReport = (value) => {
-  if(value.status === 0) {
-    ElMessage.info("体检还未开始，无法查看报告")
+const imageUrl = ref('')
+const showReport = async (value) => {
+  if(value.status !== 1) {
+    ElMessage.info("体检还未完成，无法查看报告")
     return;
   }
-  if(value.status === 2) {
-    ElMessage.info("体检已取消，无法查看报告")
-    return;
+  console.log(value)
+  const width = 1150
+  const height = 100 + 60 + 100 + value.records.length * 200;
+  canvas.value.width = width
+  canvas.value.height = height
+  const ctx = canvas.value.getContext('2d')
+  let currentHeight = 0
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, width, height)
+  ctx.fillStyle = '#31869B'
+  ctx.fillRect(currentHeight, 0, width, 100)
+  ctx.fillStyle = '#000'
+  ctx.font = '50px Arial'
+  ctx.fillText('体检报告', 450, currentHeight + 70)
+  currentHeight += 100
+
+  ctx.font = '30px Arial'
+  ctx.strokeStyle = '#000'
+  for (let i = 0; i < 6; i++) {
+    ctx.strokeRect((width / 6) * i, currentHeight, width / 6, 60)
   }
+  ctx.fillText('姓名', (width / 6) * (1 - 1) + 20, currentHeight + 40);
+  ctx.fillText(value.user.name, (width / 6) * (2 - 1) + 20, currentHeight + 40);
+  ctx.fillText('年龄', (width / 6) * (3 - 1) + 20, currentHeight + 40)
+  ctx.fillText('性别', (width / 6) * (5 - 1) + 20, currentHeight + 40)
+  currentHeight += 60;
+
+  for (let i = 0; i < value.records.length; i++) {
+    ctx.strokeRect(0, currentHeight, width / 4, 200)
+    ctx.strokeRect(width / 4, currentHeight, (width / 4) * 3, 100)
+    ctx.strokeRect(width / 4, currentHeight + 100, (width / 4) * 3 - 150, 100)
+    ctx.strokeRect(width - 150, currentHeight + 100, 150, 100);
+    ctx.fillText(value.records[i].item.name, 20, currentHeight + 40);
+    ctx.fillText(value.records[i].result, (width / 4) + 20, currentHeight + 40);
+    ctx.fillText(value.records[i].advice, (width / 4) * (3 - 1) + 20, currentHeight + 140);
+    ctx.fillText(value.records[i].doctor.name, width - 150, currentHeight + 140);
+    currentHeight += 200
+  }
+
+  ctx.strokeRect(0, currentHeight, width, 100)
+  ctx.fillText('体检时间' + tools._timeFormate(value.updataTime), 20, currentHeight + 40)
+  currentHeight += 100;
+  imageUrl.value = canvas.value.toDataURL('image/png')
+  preview({
+    images: [imageUrl]
+  })
 }
 
-const canvas = ref(null);
+const canvas = ref(null)
 const showInvoices = async (value) => {
-  // if(value.status === 0) {
-  //   ElMessage.info("体检还未开始，无法查看收费单")
-  //   return;
-  // }
-  // if(value.status === 2) {
-  //   ElMessage.info("体检已取消，无法查看收费单")
-  //   return;
-  // }
-  canvas.value.width = 1150;
-  canvas.value.height = 700;
-  const ctx = canvas.value.getContext('2d');
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, 1150, 700);
+  if (value.status === 2) {
+    ElMessage.info('体检已取消，无法查看收费单')
+    return
+  }
+  if (value.status === 3) {
+    ElMessage.info('未付费，无法查看收费单')
+    return
+  }
+  canvas.value.width = 1150
+  canvas.value.height = 700
+  const ctx = canvas.value.getContext('2d')
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, 1150, 700)
   // 绘制背景图像\
-  console.log(value);
-  const backgroundImage = new Image();
-  const InvoiceMode = await import('@renderer/assets/收费单据模板.png');
-  backgroundImage.src = InvoiceMode.default;
+  console.log(value)
+  const backgroundImage = new Image()
+  const InvoiceMode = await import('@renderer/assets/收费单据模板.png')
+  backgroundImage.src = InvoiceMode.default
   backgroundImage.onload = () => {
-    console.log("图像加载完成");
-    ctx.drawImage(backgroundImage, 0, 0, 1150, 700);
+    console.log('图像加载完成')
+    ctx.drawImage(backgroundImage, 0, 0, 1150, 700)
     // 客户名称
-    ctx.font = '35px 宋体';
-    ctx.fillStyle = '#000';
+    ctx.font = '35px 宋体'
+    ctx.fillStyle = '#000'
     ctx.fillText(value.user.name, 180, 150)
     // 体检时间
-    ctx.fillText(_timeFormate(value.createTime), 830, 150)
+    ctx.fillText(tools._timeFormate(value.createTime), 830, 150)
     // 体检项目
     let total = 0
-    for(let i = 0; i < value.records.length; i++) {
-      const record = value.records[i];
-      ctx.fillText(record.item.name, 200, 250 + i * 55);
-      ctx.fillText(record.item.price, 660, 250 + i * 55);
-      total += record.item.price;
+    for (let i = 0; i < value.records.length; i++) {
+      const record = value.records[i]
+      ctx.fillText(record.item.name, 200, 250 + i * 55)
+      ctx.fillText(record.item.price, 660, 250 + i * 55)
+      total += record.item.price
     }
     // 合计
-    ctx.fillText(value.pay, 950, 600);
-    ctx.fillText(_convertToWords(value.pay), 250, 600);
+    ctx.fillText(value.pay, 950, 600)
+    ctx.fillText(tools._convertToWords(value.pay), 250, 600)
     // 备注
-    if(value.pay < total) {
-      ctx.fontSize = '20px';
-      ctx.fillText(`优惠：${total - value.pay}`, 800, 300);
+    if (value.pay < total) {
+      ctx.fontSize = '20px'
+      ctx.fillText(`优惠：${total - value.pay}`, 800, 300)
     }
     ctx.fillText
     // 预览
@@ -164,37 +241,6 @@ const showInvoices = async (value) => {
     preview({
       images: [imageUrl]
     })
-  }
-  
-  function _timeFormate(date) {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    return year + '年' + month + '月' + day + '日';
-  }
-
-  function _convertToWords(amount) {
-    const units = ['   ', ' 一', ' 二', ' 三', ' 四', ' 五', ' 六', ' 七', ' 八', ' 九'];
-    const scales = ['', '十', '百', '千', '万'];
-
-    if (amount === 0) {
-      return '零元';
-    }
-
-    let numStr = amount.toString();
-
-    if (numStr.length > 5) {
-      throw new Error('超出转换范围');
-    }
-
-    numStr = '0'.repeat(5 - numStr.length) + numStr;
-    const digits = numStr.split('').map(Number);
-    console.log(digits);
-
-    const result = `${units[digits[0]] ?? '  '}万${units[digits[1]] ?? '  '}千${units[digits[2]] ?? '  '}百${units[digits[3]] ?? '  '}十${units[digits[4]] ?? '  '}元`
-
-    return result;
   }
 }
 </script>
@@ -218,7 +264,8 @@ const showInvoices = async (value) => {
   margin-top: 20px;
 }
 
-canvas {
+canvas,
+#report {
   background-color: white;
   display: none;
 }

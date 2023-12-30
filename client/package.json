@@ -21,6 +21,7 @@
     "@electron-toolkit/utils": "^2.0.0",
     "@nestjs/typeorm": "^10.0.0",
     "axios": "^1.6.0",
+    "dom-to-image": "^2.6.0",
     "echarts": "^5.4.3",
     "electron-updater": "^6.1.1",
     "element-plus": "^2.4.1",

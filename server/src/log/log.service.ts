@@ -61,7 +61,6 @@ export class LogService {
     }
     const log = new Log();
     log.pay = createLogDto.pay;
-    this._userRepository.update(user.id, { balance: user.balance - createLogDto.pay })
 
     log.user = await this._userRepository.findOne({
       where: { id: createLogDto.userId }
@@ -174,7 +173,7 @@ export class LogService {
     log.user.balance -= log.pay;
     this._userRepository.save(log.user);
     // 支付成功，更新预约状态
-    log.status = 1;
+    log.status = 0;
     this._logRepository.save(log);
     console.log(`log/pay, id为${id}的预约记录被支付`);
 

@@ -17,6 +17,9 @@ dependencies:
   axios:
     specifier: ^1.6.0
     version: 1.6.0
+  dom-to-image:
+    specifier: ^2.6.0
+    version: 2.6.0
   echarts:
     specifier: ^5.4.3
     version: 5.4.3
@@ -1788,6 +1791,10 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dom-to-image@2.6.0:
+    resolution: {integrity: sha512-Dt0QdaHmLpjURjU7Tnu3AgYSF2LuOmksSGsUcE6ItvJoCWTBEmiMXcqBdNSAm9+QbbwD7JMoVsuuKX6ZVQv1qA==}
+    dev: false
 
   /dotenv-expand@5.1.0:
     resolution: {integrity: sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==}
