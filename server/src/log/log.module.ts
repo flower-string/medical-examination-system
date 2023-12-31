@@ -10,10 +10,11 @@ import { ItemService } from 'src/item/item.service';
 import { Item } from 'src/item/entities/item.entity';
 import { Doctor } from 'src/doctor/entities/doctor.entity';
 import { UserService } from 'src/user/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Log, Record, User, Item, Doctor])],
   controllers: [LogController],
-  providers: [LogService, RecordService, UserService]
+  providers: [LogService, RecordService, UserService, JwtService]
 })
 export class LogModule {}

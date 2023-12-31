@@ -85,10 +85,9 @@ const userStore = useUserStore();
 
     id = parseInt(id);
     // 鉴权认证
-    const info = await auth_login(type, data);
+    const token = await auth_login(type, data);
     // 认证通过，保存登录信息
     localStorage.setItem('userType', type);
-    localStorage.setItem('userId', info.id);
     // 跳转页面
     if(type == 0) router.push('/admin');
     else if(type == 1) router.push('/doctor');

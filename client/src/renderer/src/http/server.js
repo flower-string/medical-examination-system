@@ -5,9 +5,19 @@ import serverConfig from "./config";
 const serviceAxios = axios.create({
   baseURL: serverConfig.baseURL, // 基础请求地址
   timeout: 10000, // 请求超时设置
-  withCredentials: false, // 跨域请求是否需要携带 cookie
+  // withCredentials: true, // 跨域请求是否需要携带 cookie
+  useTokenAuthorization: serverConfig.useTokenAuthorization, // 是否开启 token 认证
 });
 
+serviceAxios.interceptors.request.use(
+  (config) => {
+    // if(serviceAxios.useTokenAuthorization) {
+    config.headers['authorization'] = localStorage.getItem('token');
+    console.log("携带请求头");
+    // }
+    return config
+  }
+)
 
 // 创建请求拦截
 // serviceAxios.interceptors.request.use(
@@ -32,15 +42,6 @@ const serviceAxios = axios.create({
 //     Promise.reject(error);
 //   }
 // );
-serviceAxios.interceptors.request.use(
-  (config) => {
-    // 开启session认证
-    if (serverConfig.useSessionAuthorization) {
-      config.withCredentials = true; // 开启跨域请求携带 cookie
-    }
-    return config;
-  }
-)
 
 // 创建响应拦截
 serviceAxios.interceptors.response.use(

@@ -3,7 +3,6 @@ import server from '../server'
 import serverConfig from '../config';
 import { ElMessage } from 'element-plus';
 axios.defaults.baseURL = serverConfig.baseURL;
-axios.defaults.withCredentials = true;
 
 export function userEenewal(id, value) {
   server.patch(`/user/renewal/${id}`, { value })
@@ -47,20 +46,17 @@ export async function auth_login(type, body) {
     case 1: url = '/doctor/login/'; break;
     case 2: url = '/user/login/'; break;
   }
-  const { data } = await axios({
-    method: 'post',
-    url: url,
-    data: body
-  });
-  const { code, message, data: info } = data;
-  if (code === 1000) {
-    ElMessage.error(message);
-    throw new Error(message);
-  } else if(code === 1001) {
-    ElMessage.error(message);
-    throw new Error(message);
-  } else {
-    return info;
+  try {
+    const { data } = await axios({
+      method: 'post',
+      url: url,
+      data: body
+    });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('userId', data.id)
+  } catch {
+    ElMessage.error('登录失败');
+    throw new Error('登录失败');
   }
 }
 

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as session from 'express-session';
+// import * as session from 'express-session';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -13,19 +13,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
 
   SwaggerModule.setup('api-docs', app, document);
-  app.use(session({
-    secret: 'cat',
-    rolling: true,
-    cookie: {
-      httpOnly: true,
-      maxAge: 1000000
-    }
-  }));
-  app.enableCors();
-  app.use(session({secret: 'med', rolling: true, name: 'med.sid', cookie: {maxAge: 1000000} }));
+  app.enableCors({
+    // origin: ['http://localhost:3000', 'http://8.219.180.234:5000', 'http://localhost:5173', 'http://localhost:8000', 'http://localhost:8080'],
+    // credentials: true
+  });
+  // app.use(session({secret: 'med', rolling: true, name: 'med.sid', cookie: {maxAge: 1000000} }));
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter(new Logger()))
-  // app.setGlobalPrefix('api')
   await app.listen(3000); 
 }
 bootstrap();

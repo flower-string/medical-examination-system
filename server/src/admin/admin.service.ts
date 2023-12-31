@@ -4,10 +4,13 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from './entities/admin.entity';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+
 
 @Injectable()
 export class AdminService {
-  constructor(@InjectRepository(Admin) private readonly _adminRepository: Repository<Admin>) {}
+  constructor(@InjectRepository(Admin) private readonly _adminRepository: Repository<Admin>,
+              private readonly jwtService: JwtService) {}
   create(createAdminDto: CreateAdminDto) {
     return 'This action adds a new admin';
   }
@@ -22,6 +25,8 @@ export class AdminService {
         id
       }
     });
+    console.log("返回管理员信息", id);
+    
     return {
       data: admin,
       message: '管理员信息'

@@ -131,11 +131,17 @@ onMounted(async () => {
   // 获取用户信息，防止刷新后登录信息丢失
   const api = getApi();
   const id = +localStorage.getItem('userId');
-  const info = await api.findOne(id);
-  userStore.setId(info.id);
-  userStore.setName(info.name);
-  userStore.setPassword(info.password);
-  userStore.setBalance(info.balance || 0);
+  console.log(api, id);
+  try {
+    const info = await api.findOne(id);
+    console.log(info);
+    userStore.setId(info.id);
+    userStore.setName(info.name);
+    userStore.setPassword(info.password);
+    userStore.setBalance(info.balance || 0);
+  } catch {
+    console.log("拦截");
+  }
 })
 </script>
 

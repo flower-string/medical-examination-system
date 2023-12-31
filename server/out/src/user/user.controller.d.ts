@@ -12,7 +12,7 @@ export declare class UserController {
         message: string;
         data: import("./entities/user.entity").User[];
     }>;
-    findOne(id: number, session: any): Promise<{
+    findOne(id: number): Promise<{
         message: string;
         data: import("./entities/user.entity").User;
     }>;
@@ -30,13 +30,5 @@ export declare class UserController {
     login(body: {
         name: string;
         password: string;
-    }, session: any): Promise<{
-        code: number;
-        message: string;
-        data?: undefined;
-    } | {
-        code: number;
-        message: string;
-        data: import("./entities/user.entity").User;
-    }>;
+    }, session: any, res: any): Promise<void>;
 }

@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Session } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Session, ForbiddenException, Headers } from '@nestjs/common';
 import { RecordService } from './record.service';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import session from 'express-session';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('record')
 @ApiTags("体检记录接口")
 export class RecordController {
-  constructor(private readonly recordService: RecordService) {}
+  constructor(private readonly recordService: RecordService,
+              private readonly jwtService: JwtService) {}
 
   // 创建新体检记录
   // @Post()
@@ -47,9 +49,10 @@ export class RecordController {
   // 更新某次体检记录
   @Patch(':id')
   @ApiOkResponse({ description: '更新某次体检记录，需要医生权限或管理员权限' })
-  update(@Param('id') id: number, @Body() updateRecordDto: UpdateRecordDto, @Session() session) {
-    if(session.loginType != 'doctor' && session.loginType != 'admin') {
-      throw new Error("权限不足");
+  update(@Param('id') id: number, @Body() updateRecordDto: UpdateRecordDto, @Headers('authorization') authorization) {
+    const user = this.jwtService.verify(authorization, {secret: 'med'});
+    if(user.type !== 'admin' && user.type !== 'doctor') {
+      throw new ForbiddenException("权限不足")
     }
     return this.recordService.update(+id, updateRecordDto);
   }

@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { ItemModule } from './item/item.module';
 import { GroupModule } from './group/group.module';
 import { LogModule } from './log/log.module';
+import { JwtModule } from '@nestjs/jwt'
 
 @Module({
   imports: [
@@ -22,6 +23,12 @@ import { LogModule } from './log/log.module';
       synchronize: true,
       autoLoadEntities: true,
       // entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    }),
+    JwtModule.register({
+      secret: 'med',
+      signOptions: {
+        expiresIn: '7d'
+      }
     }),
     UserModule,
     RecordModule,
